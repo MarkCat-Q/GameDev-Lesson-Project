@@ -121,7 +121,343 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: Player_Attack_Up_0
+      rect:
+        serializedVersion: 2
+        x: 87
+        y: 1543
+        width: 325
+        height: 425
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7121a6d800a862d4c95914d8e0e2cf44
+      internalID: 41548953
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Up_1
+      rect:
+        serializedVersion: 2
+        x: 599
+        y: 1543
+        width: 325
+        height: 425
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bff3d5ae776b6a449b4468d9a2e794a2
+      internalID: -1739818633
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Up_2
+      rect:
+        serializedVersion: 2
+        x: 1111
+        y: 1543
+        width: 325
+        height: 425
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 59ded13f1249ece4dbecbb72f25d2427
+      internalID: 941086918
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Up_3
+      rect:
+        serializedVersion: 2
+        x: 1602
+        y: 1543
+        width: 395
+        height: 504
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 43d45acaa6b4d4e4cb0cc128d72364a2
+      internalID: 491084863
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Up_5
+      rect:
+        serializedVersion: 2
+        x: 66
+        y: 1031
+        width: 394
+        height: 504
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c73ab9aa8e5b85a4bad9afa9e5beff2b
+      internalID: -1513752787
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Up_7
+      rect:
+        serializedVersion: 2
+        x: 578
+        y: 1031
+        width: 393
+        height: 504
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d16a07ce00e533f46a91cc03d8ed3d4d
+      internalID: 2119446698
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Up_9
+      rect:
+        serializedVersion: 2
+        x: 1090
+        y: 1031
+        width: 394
+        height: 504
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a41b9d06eefa0ba49a99a0413058ff98
+      internalID: 1645110546
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Up_11
+      rect:
+        serializedVersion: 2
+        x: 1602
+        y: 1031
+        width: 394
+        height: 504
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6934704dfc231594b8d7106fcbee4898
+      internalID: 635748258
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Up_13
+      rect:
+        serializedVersion: 2
+        x: 66
+        y: 519
+        width: 393
+        height: 504
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e1f330e43fc7e1f40927106a95c23533
+      internalID: 945038516
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Up_15
+      rect:
+        serializedVersion: 2
+        x: 578
+        y: 519
+        width: 394
+        height: 504
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4445c1999a194d4489a427eac00e3b61
+      internalID: 1380703009
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Up_17
+      rect:
+        serializedVersion: 2
+        x: 1090
+        y: 519
+        width: 393
+        height: 504
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 83a9ba18e8599964a83e9366733b6e43
+      internalID: 542020339
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Up_19
+      rect:
+        serializedVersion: 2
+        x: 1623
+        y: 519
+        width: 325
+        height: 421
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2c218c38e38c409458dcd35c5e577197
+      internalID: -191624776
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Up_20
+      rect:
+        serializedVersion: 2
+        x: 87
+        y: 7
+        width: 325
+        height: 422
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 671580c666b1f494a9a2d3b8a7a9155f
+      internalID: -484015168
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Up_21
+      rect:
+        serializedVersion: 2
+        x: 599
+        y: 7
+        width: 325
+        height: 423
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ebcdaa2360ad43146b42e626d900628c
+      internalID: 1272699907
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Up_22
+      rect:
+        serializedVersion: 2
+        x: 1111
+        y: 7
+        width: 325
+        height: 424
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9c87b90d3017f674aa2a7da3999a0fa5
+      internalID: 1959851549
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Up_23
+      rect:
+        serializedVersion: 2
+        x: 1623
+        y: 7
+        width: 325
+        height: 425
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 90dce914b0713444281505fb2b06d645
+      internalID: 1218344614
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -132,7 +468,31 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Player_Attack_Up_0: 41548953
+      Player_Attack_Up_1: -1739818633
+      Player_Attack_Up_10: -1546492600
+      Player_Attack_Up_11: 635748258
+      Player_Attack_Up_12: 1979973900
+      Player_Attack_Up_13: 945038516
+      Player_Attack_Up_14: 226780187
+      Player_Attack_Up_15: 1380703009
+      Player_Attack_Up_16: 669827724
+      Player_Attack_Up_17: 542020339
+      Player_Attack_Up_18: -2063126210
+      Player_Attack_Up_19: -191624776
+      Player_Attack_Up_2: 941086918
+      Player_Attack_Up_20: -484015168
+      Player_Attack_Up_21: 1272699907
+      Player_Attack_Up_22: 1959851549
+      Player_Attack_Up_23: 1218344614
+      Player_Attack_Up_3: 491084863
+      Player_Attack_Up_4: -1519866963
+      Player_Attack_Up_5: -1513752787
+      Player_Attack_Up_6: -32432469
+      Player_Attack_Up_7: 2119446698
+      Player_Attack_Up_8: 1818585982
+      Player_Attack_Up_9: 1645110546
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -121,7 +121,343 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: Player_Attack_Down_0
+      rect:
+        serializedVersion: 2
+        x: 87
+        y: 1602
+        width: 325
+        height: 424
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b096a6e3ae2f1014face87763aa6cc95
+      internalID: -573505131
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Down_1
+      rect:
+        serializedVersion: 2
+        x: 599
+        y: 1602
+        width: 325
+        height: 424
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e91035cbd21cf904a805c97489c4d07c
+      internalID: -1896836359
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Down_2
+      rect:
+        serializedVersion: 2
+        x: 1111
+        y: 1602
+        width: 325
+        height: 424
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d29212f8c504c484f9c7f04e1fde1424
+      internalID: -1846300473
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Down_3
+      rect:
+        serializedVersion: 2
+        x: 1623
+        y: 1602
+        width: 325
+        height: 423
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c821bdc9a8a77f147a1ab2c9d6acd23f
+      internalID: 1880759816
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Down_4
+      rect:
+        serializedVersion: 2
+        x: 87
+        y: 1090
+        width: 325
+        height: 424
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 903267321d390404881c77139dedaf77
+      internalID: 2042354549
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Down_5
+      rect:
+        serializedVersion: 2
+        x: 599
+        y: 1090
+        width: 325
+        height: 425
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fbad500bb61a68949936efb99dc51eb1
+      internalID: -1128051660
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Down_6
+      rect:
+        serializedVersion: 2
+        x: 1111
+        y: 1090
+        width: 325
+        height: 425
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f49810a0d942fd346a948995b69ffc03
+      internalID: 719367371
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Down_7
+      rect:
+        serializedVersion: 2
+        x: 1623
+        y: 1072
+        width: 372
+        height: 444
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cf822118393ab1e4fb8d4781aa5fa07c
+      internalID: 136893526
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Down_9
+      rect:
+        serializedVersion: 2
+        x: 87
+        y: 560
+        width: 370
+        height: 443
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7e1a69ecdc824b04492f95ea4d8772f7
+      internalID: -1270589386
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Down_11
+      rect:
+        serializedVersion: 2
+        x: 599
+        y: 558
+        width: 372
+        height: 441
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ce8d041beeec1bb40ba5dc1d044ce950
+      internalID: 1707515858
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Down_13
+      rect:
+        serializedVersion: 2
+        x: 1112
+        y: 561
+        width: 370
+        height: 440
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: be7ffee7beec41949b1fc7b10bd260b6
+      internalID: -343443047
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Down_15
+      rect:
+        serializedVersion: 2
+        x: 1623
+        y: 578
+        width: 325
+        height: 420
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9682db9466e759447b152b7cfbc6c38e
+      internalID: -796101345
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Down_16
+      rect:
+        serializedVersion: 2
+        x: 87
+        y: 66
+        width: 325
+        height: 421
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 64119f6fd91552e47a3715ba3978fa48
+      internalID: 1221670659
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Down_17
+      rect:
+        serializedVersion: 2
+        x: 599
+        y: 66
+        width: 325
+        height: 422
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7dad96b590fd2044e8594cc3f7a390c7
+      internalID: 446330779
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Down_18
+      rect:
+        serializedVersion: 2
+        x: 1111
+        y: 66
+        width: 325
+        height: 423
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e17355dfe880db84eac544d877e2d399
+      internalID: -1394677127
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_Attack_Down_19
+      rect:
+        serializedVersion: 2
+        x: 1623
+        y: 66
+        width: 325
+        height: 424
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 85ed04553bdc48a4880c6363586ec3e0
+      internalID: 2020769182
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -132,7 +468,27 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Player_Attack_Down_0: -573505131
+      Player_Attack_Down_1: -1896836359
+      Player_Attack_Down_10: 502183657
+      Player_Attack_Down_11: 1707515858
+      Player_Attack_Down_12: 1461448678
+      Player_Attack_Down_13: -343443047
+      Player_Attack_Down_14: 1108409307
+      Player_Attack_Down_15: -796101345
+      Player_Attack_Down_16: 1221670659
+      Player_Attack_Down_17: 446330779
+      Player_Attack_Down_18: -1394677127
+      Player_Attack_Down_19: 2020769182
+      Player_Attack_Down_2: -1846300473
+      Player_Attack_Down_3: 1880759816
+      Player_Attack_Down_4: 2042354549
+      Player_Attack_Down_5: -1128051660
+      Player_Attack_Down_6: 719367371
+      Player_Attack_Down_7: 136893526
+      Player_Attack_Down_8: 313182384
+      Player_Attack_Down_9: -1270589386
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

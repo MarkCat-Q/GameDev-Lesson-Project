@@ -39,7 +39,8 @@ public class PlatformerMovement : MonoBehaviour
             transform.localScale = new Vector3(-Mathf.Abs(originalScale.x), originalScale.y, originalScale.z);
         }
 
-        // 空格键跳跃检测
+        // 空格键跳跃检测  
+        // 有一个bug：跳跃没有检测isGround，也就是说人物在空中时仍然能够跳跃
         if (Input.GetKeyDown(KeyCode.Space) && IsGroundedSimple())
         {
             Jump();
