@@ -2,57 +2,58 @@ using UnityEngine;
 
 public class PlatformerMovement : MonoBehaviour
 {
-    [Header("ÒÆ¶¯ÉèÖÃ")]
+    [Header("ï¿½Æ¶ï¿½ï¿½ï¿½ï¿½ï¿½")]
     public float moveSpeed = 8f;
     public float jumpForce = 12f;
 
-    [Header("×é¼şÒıÓÃ")]
+    [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
     private Rigidbody2D rb;
     private Animator animator;
 
     private bool isGrounded = false;
-    private Vector3 originalScale; // ¹Ø¼ü£º´æ´¢Ô­Ê¼´óĞ¡
+    private Vector3 originalScale;
+    private float speedMultiplier = 1f; // é€Ÿåº¦å€æ•°ï¼Œç”¨äºå¤–éƒ¨ä¿®æ”¹ï¼ˆå¦‚èœ˜è››ç½‘å‡é€Ÿï¼‰ // ï¿½Ø¼ï¿½ï¿½ï¿½ï¿½æ´¢Ô­Ê¼ï¿½ï¿½Ğ¡
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
-        originalScale = transform.localScale; // ±£´æ³õÊ¼´óĞ¡
+        originalScale = transform.localScale; // ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½Ğ¡
     }
 
     void Update()
     {
-        // Ë®Æ½ÒÆ¶¯
+        // Ë®Æ½ï¿½Æ¶ï¿½
         float horizontal = Input.GetAxis("Horizontal");
-        rb.velocity = new Vector2(horizontal * moveSpeed, rb.velocity.y);
+        rb.velocity = new Vector2(horizontal * moveSpeed * speedMultiplier, rb.velocity.y);
 
-        // ¶¯»­¿ØÖÆ
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         animator.SetFloat("Speed", Mathf.Abs(horizontal));
 
-        // ½ÇÉ«³¯Ïò - ¹Ø¼ü£ºÊ¹ÓÃÔ­Ê¼´óĞ¡£¬Ö»ĞŞ¸ÄXÖá·½Ïò
-        if (horizontal > 0) // ÏòÓÒÒÆ¶¯
+        // ï¿½ï¿½É«ï¿½ï¿½ï¿½ï¿½ - ï¿½Ø¼ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½Ô­Ê¼ï¿½ï¿½Ğ¡ï¿½ï¿½Ö»ï¿½Ş¸ï¿½Xï¿½á·½ï¿½ï¿½
+        if (horizontal > 0) // ï¿½ï¿½ï¿½ï¿½ï¿½Æ¶ï¿½
         {
             transform.localScale = new Vector3(Mathf.Abs(originalScale.x), originalScale.y, originalScale.z);
         }
-        else if (horizontal < 0) // Ïò×óÒÆ¶¯
+        else if (horizontal < 0) // ï¿½ï¿½ï¿½ï¿½ï¿½Æ¶ï¿½
         {
             transform.localScale = new Vector3(-Mathf.Abs(originalScale.x), originalScale.y, originalScale.z);
         }
 
-        // ¿Õ¸ñ¼üÌøÔ¾¼ì²â  
-        // ÓĞÒ»¸öbug£ºÌøÔ¾Ã»ÓĞ¼ì²âisGround£¬Ò²¾ÍÊÇËµÈËÎïÔÚ¿ÕÖĞÊ±ÈÔÈ»ÄÜ¹»ÌøÔ¾
+        // ï¿½Õ¸ï¿½ï¿½ï¿½ï¿½Ô¾ï¿½ï¿½ï¿½  
+        // ï¿½ï¿½Ò»ï¿½ï¿½bugï¿½ï¿½ï¿½ï¿½Ô¾Ã»ï¿½Ğ¼ï¿½ï¿½isGroundï¿½ï¿½Ò²ï¿½ï¿½ï¿½ï¿½Ëµï¿½ï¿½ï¿½ï¿½ï¿½Ú¿ï¿½ï¿½ï¿½Ê±ï¿½ï¿½È»ï¿½Ü¹ï¿½ï¿½ï¿½Ô¾
         if (Input.GetKeyDown(KeyCode.Space) && IsGroundedSimple())
         {
             Jump();
         }
 
-        // J¼ü¹¥»÷¼ì²â
+        // Jï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         if (Input.GetKeyDown(KeyCode.J))
         {
             Attack();
         }
 
-        // Ã¿Ö¡Ç¿ÖÆ±£³ÖÔ­Ê¼´óĞ¡£¨Ë«ÖØ±£ÏÕ£©
+        // Ã¿Ö¡Ç¿ï¿½Æ±ï¿½ï¿½ï¿½Ô­Ê¼ï¿½ï¿½Ğ¡ï¿½ï¿½Ë«ï¿½Ø±ï¿½ï¿½Õ£ï¿½
         MaintainOriginalScale();
     }
 
@@ -60,46 +61,46 @@ public class PlatformerMovement : MonoBehaviour
     {
         rb.velocity = new Vector2(rb.velocity.x, jumpForce);
         animator.SetTrigger("Jump");
-        Debug.Log("Ö´ĞĞÌøÔ¾£¡");
+        Debug.Log("Ö´ï¿½ï¿½ï¿½ï¿½Ô¾ï¿½ï¿½");
     }
 
     void Attack()
     {
         animator.SetTrigger("Attack");
-        Debug.Log("Ö´ĞĞ¹¥»÷£¡");
+        Debug.Log("Ö´ï¿½Ğ¹ï¿½ï¿½ï¿½ï¿½ï¿½");
     }
 
-    // Ç¿ÖÆ±£³ÖÔ­Ê¼´óĞ¡
+    // Ç¿ï¿½Æ±ï¿½ï¿½ï¿½Ô­Ê¼ï¿½ï¿½Ğ¡
     void MaintainOriginalScale()
     {
         if (transform.localScale.x != originalScale.x && transform.localScale.x != -originalScale.x)
         {
-            // Èç¹ûXÖá´óĞ¡±»ĞŞ¸Ä£¬Ç¿ÖÆ»Ö¸´
+            // ï¿½ï¿½ï¿½Xï¿½ï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½Ş¸Ä£ï¿½Ç¿ï¿½Æ»Ö¸ï¿½
             float direction = Mathf.Sign(transform.localScale.x);
             transform.localScale = new Vector3(direction * Mathf.Abs(originalScale.x), originalScale.y, originalScale.z);
         }
         if (transform.localScale.y != originalScale.y)
         {
-            // Èç¹ûYÖá´óĞ¡±»ĞŞ¸Ä£¬Ç¿ÖÆ»Ö¸´
+            // ï¿½ï¿½ï¿½Yï¿½ï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½Ş¸Ä£ï¿½Ç¿ï¿½Æ»Ö¸ï¿½
             transform.localScale = new Vector3(transform.localScale.x, originalScale.y, originalScale.z);
         }
     }
 
-    // ¼òµ¥µÄ×ÅµØ¼ì²â
+    // ï¿½òµ¥µï¿½ï¿½ÅµØ¼ï¿½ï¿½
     bool IsGroundedSimple()
     {
-        // ·½·¨1£ºÉäÏß¼ì²â
-        float rayLength = 0.6f; // ¼ì²â¾àÀë
+        // ï¿½ï¿½ï¿½ï¿½1ï¿½ï¿½ï¿½ï¿½ï¿½ß¼ï¿½ï¿½
+        float rayLength = 0.6f; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         Vector2 rayStart = (Vector2)transform.position + Vector2.down * 0.5f;
         RaycastHit2D hit = Physics2D.Raycast(rayStart, Vector2.down, rayLength);
 
-        // ¿ÉÊÓ»¯ÉäÏß£¨µ÷ÊÔÓÃ£©
+        // ï¿½ï¿½ï¿½Ó»ï¿½ï¿½ï¿½ï¿½ß£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã£ï¿½
         Debug.DrawRay(rayStart, Vector2.down * rayLength, hit.collider != null ? Color.green : Color.red);
 
         return hit.collider != null;
     }
 
-    // Åö×²¼ì²â×÷Îª±¸ÓÃ
+    // ï¿½ï¿½×²ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½
     void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Ground"))
@@ -114,5 +115,17 @@ public class PlatformerMovement : MonoBehaviour
         {
             isGrounded = false;
         }
+    }
+
+    // è®¾ç½®é€Ÿåº¦å€æ•°ï¼ˆä¾›å¤–éƒ¨è°ƒç”¨ï¼Œå¦‚èœ˜è››ç½‘ï¼‰
+    public void SetSpeedMultiplier(float multiplier)
+    {
+        speedMultiplier = multiplier;
+    }
+
+    // é‡ç½®é€Ÿåº¦å€æ•°ï¼ˆæ¢å¤åŸå§‹é€Ÿåº¦ï¼‰
+    public void ResetSpeedMultiplier()
+    {
+        speedMultiplier = 1f;
     }
 }
