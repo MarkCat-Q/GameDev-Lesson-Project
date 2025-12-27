@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6217970238766597013}
   m_Layer: 0
   m_Name: AttackZoneUp
-  m_TagString: Untagged
+  m_TagString: AttackZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -181,7 +181,7 @@ GameObject:
   - component: {fileID: 6142838877401237472}
   m_Layer: 0
   m_Name: AttackZoneDown
-  m_TagString: Untagged
+  m_TagString: AttackZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -258,7 +258,7 @@ GameObject:
   - component: {fileID: 81747610718369605}
   m_Layer: 0
   m_Name: AttackZoneFront
-  m_TagString: Untagged
+  m_TagString: AttackZone
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -428,7 +428,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 8
-  jumpForce: 13
+  attackTrigger: Attack
+  attackZoneFront: {fileID: 0}
+  attackZoneUp: {fileID: 0}
+  attackZoneDown: {fileID: 0}
+  attackDuration: 0.3
+  jumpSpeed: 9
+  minJumpTime: 0.08
+  maxJumpTime: 0.2
+  coyoteTime: 0.01
+  gravityScale: 3
+  maxFallSpeed: 21
+  hasDoubleJump: 0
+  hasDash: 0
+  dashSpeed: 20
+  dashDuration: 0.25
+  dashCooldown: 0.5
+  dashTrigger: Dash
+  hasWallCling: 0
+  wallCheckDistance: 0.5
+  maxWallClingDistance: 0.2
+  wallJumpHorizontalSpeed: 8.3
+  debugWallDetection: 0
+  maxHealth: 5
+  invincibleTime: 1.3
+  hurtTrigger: Hurt
+  hitPauseDuration: 0.3
+  knockbackHorizontalSpeed: 15
+  knockbackUpwardSpeed: 7.5
+  knockbackDuration: 0.2
+  groundCheckDistance: 0.6
+  groundCheckOffset: 0.8
 --- !u!50 &7724428149823093010
 Rigidbody2D:
   serializedVersion: 4

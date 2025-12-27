@@ -47,10 +47,14 @@ public class PlatformerMovement : MonoBehaviour
     public float maxWallClingDistance = 0.2f; // 最大贴墙距离，超过此距离不认为在墙上
     public float wallJumpHorizontalSpeed = 8.3f; // 贴墙跳跃水平速度
     public bool debugWallDetection = false; // 是否显示墙壁检测调试信息
-    public string climbTrigger = "Climb"; // 爬墙动画触发器
+    // Climb动画已改为Bool变量Climbing，不再需要触发器字符串
     private bool isWallClinging = false;
     private bool isOnWall = false;
     private int wallDirection = 0; // -1左，1右
+
+    [Header("小球悬挂设置")]
+    private bool isOnBall = false; // 是否在小球上
+    private bool isHangingOnBall = false; // 是否正在悬挂在小球上
 
     [Header("血量设置")]
     public int maxHealth = 5; // 最大血量
@@ -192,13 +196,19 @@ public class PlatformerMovement : MonoBehaviour
         HandleInputBuffer();
         
         // 1. 移动逻辑（非冲刺状态且不在击退状态）
+        // 注意：悬挂在小球上时，水平移动仍然允许（玩家可以左右移动）
         if (!isDashing && !isKnockbackActive)
         {
             float horizontal = Input.GetAxis("Horizontal");
             
+            // 如果悬挂在小球上，只允许水平移动，垂直速度保持为0
+            if (isHangingOnBall)
+            {
+                rb.velocity = new Vector2(horizontal * moveSpeed * speedMultiplier, 0f);
+            }
             // 如果没有贴墙能力，强制设置速度，防止被物理碰撞卡住
             // 如果有贴墙能力且正在贴墙，保持当前逻辑（速度在 HandleWallCling 中设置）
-            if (!hasWallCling)
+            else if (!hasWallCling)
             {
                 // 强制设置速度，确保即使靠近墙壁也能移动
                 rb.velocity = new Vector2(horizontal * moveSpeed * speedMultiplier, rb.velocity.y);
@@ -218,22 +228,25 @@ public class PlatformerMovement : MonoBehaviour
             else if (horizontal < 0) transform.localScale = new Vector3(-Mathf.Abs(originalScale.x), originalScale.y, originalScale.z);
         }
 
-        // 2. 贴墙逻辑
+        // 2. 小球悬挂逻辑
+        HandleBallHanging();
+
+        // 3. 贴墙逻辑
         HandleWallCling();
 
-        // 3. 跳跃逻辑
+        // 4. 跳跃逻辑
         HandleJump();
 
-        // 4. 冲刺逻辑
+        // 5. 冲刺逻辑
         HandleDash();
 
-        // 5. 攻击
+        // 6. 攻击
         if (Input.GetKeyDown(KeyCode.J) || Input.GetButtonDown("Fire1"))
         {
             Attack();
         }
 
-        // 6. 控制重力
+        // 7. 控制重力
         HandleGravity();
 
         MaintainOriginalScale();
@@ -689,29 +702,39 @@ public class PlatformerMovement : MonoBehaviour
         
         if (jumpInput)
         {
-            // 普通跳跃（在地面或Coyote Time内）
-            bool inCoyoteTime = !isGrounded && wasGrounded && coyoteTimeTimer <= coyoteTime;
-            bool canNormalJump = (isGrounded || inCoyoteTime) && !isJumping && !isWallClinging;
-            
-            if (canNormalJump)
+            // 小球悬挂跳跃（优先检测，因为悬挂时允许普通跳跃）
+            if (isHangingOnBall && isOnBall)
             {
                 StartJump();
+                isHangingOnBall = false; // 跳跃后离开悬挂状态
                 jumpInputBufferTimer = 0f; // 清除输入缓冲
             }
-            // 二段跳（需要拥有能力，不在地面，不在Coyote Time内，正在下落，可以二段跳，且未使用过二段跳）
-            else if (!isGrounded && !inCoyoteTime && hasDoubleJump && rb.velocity.y <= 0 && canDoubleJump && !hasUsedDoubleJump && !isWallClinging)
+            // 普通跳跃（在地面或Coyote Time内）
+            else
             {
-                if (!hasUsedDoubleJump && canDoubleJump)
+                bool inCoyoteTime = !isGrounded && wasGrounded && coyoteTimeTimer <= coyoteTime;
+                bool canNormalJump = (isGrounded || inCoyoteTime) && !isJumping && !isWallClinging && !isHangingOnBall;
+                
+                if (canNormalJump)
                 {
-                    StartDoubleJump();
+                    StartJump();
                     jumpInputBufferTimer = 0f; // 清除输入缓冲
                 }
-            }
-            // 贴墙跳跃
-            else if (isWallClinging && hasWallCling)
-            {
-                WallJump();
-                jumpInputBufferTimer = 0f; // 清除输入缓冲
+                // 二段跳（需要拥有能力，不在地面，不在Coyote Time内，正在下落，可以二段跳，且未使用过二段跳）
+                else if (!isGrounded && !inCoyoteTime && hasDoubleJump && rb.velocity.y <= 0 && canDoubleJump && !hasUsedDoubleJump && !isWallClinging && !isHangingOnBall)
+                {
+                    if (!hasUsedDoubleJump && canDoubleJump)
+                    {
+                        StartDoubleJump();
+                        jumpInputBufferTimer = 0f; // 清除输入缓冲
+                    }
+                }
+                // 贴墙跳跃
+                else if (isWallClinging && hasWallCling)
+                {
+                    WallJump();
+                    jumpInputBufferTimer = 0f; // 清除输入缓冲
+                }
             }
         }
     }
@@ -798,6 +821,26 @@ public class PlatformerMovement : MonoBehaviour
         }
     }
 
+    void HandleBallHanging()
+    {
+        // 如果在小球上且正在悬挂，设置爬墙动画
+        if (isOnBall && isHangingOnBall)
+        {
+            animator.SetBool("Climbing", true);
+            // 如果玩家正在上升（跳跃），取消悬挂状态
+            if (isJumping && rb.velocity.y > 0.1f)
+            {
+                isHangingOnBall = false;
+                // 如果不在墙上，设置Climbing为false（在墙上时让HandleWallCling()处理）
+                if (!isOnWall)
+                {
+                    animator.SetBool("Climbing", false);
+                }
+            }
+        }
+        // 注意：不在悬挂状态时不设置Climbing，让HandleWallCling()统一管理，避免冲突
+    }
+
     void HandleWallCling()
     {
         if (!hasWallCling)
@@ -809,15 +852,21 @@ public class PlatformerMovement : MonoBehaviour
             }
             isWallClinging = false;
             // 确保重力恢复（防止在禁用能力时仍然没有重力）
-            if (rb.gravityScale == 0f && !isDashing)
+            if (rb.gravityScale == 0f && !isDashing && !isHangingOnBall)
             {
                 rb.gravityScale = gravityScale;
             }
             // 确保速度不被设置为0（防止在禁用能力时仍然不掉落）
-            if (rb.velocity.y == 0f && !isGrounded && !isDashing)
+            if (rb.velocity.y == 0f && !isGrounded && !isDashing && !isHangingOnBall)
             {
                 // 允许正常下落
             }
+            return;
+        }
+
+        // 如果正在悬挂在小球上，不处理贴墙逻辑
+        if (isHangingOnBall)
+        {
             return;
         }
 
@@ -856,6 +905,11 @@ public class PlatformerMovement : MonoBehaviour
                     }
                     OnWallClingStart();
                 }
+                else
+                {
+                    // 已经在贴墙状态，确保Climbing保持为true（防止被其他逻辑重置）
+                    animator.SetBool("Climbing", true);
+                }
                 isWallClinging = true;
                 rb.velocity = new Vector2(rb.velocity.x, 0f); // 停止下落
             }
@@ -871,30 +925,52 @@ public class PlatformerMovement : MonoBehaviour
                     OnWallClingEnd();
                 }
                 isWallClinging = false;
+                // 如果不在小球悬挂状态，确保Climbing为false（在墙上但没有按住方向键时不应该显示爬墙动画）
+                if (!isHangingOnBall)
+                {
+                    animator.SetBool("Climbing", false);
+                }
             }
         }
         else
         {
+            // 如果已经在贴墙状态，但canCling为false，需要判断是否真的应该停止贴墙
+            // 只有当明确不在墙上时，才停止贴墙（避免因速度等条件短暂变化导致的闪动）
             if (isWallClinging)
             {
-                if (debugWallDetection)
+                if (!isOnWall)
                 {
-                    string reason = "";
-                    if (isJumping && jumpHoldTime < minJumpTime) reason = "正在强制上升阶段";
-                    else if (rb.velocity.y > 0) reason = "速度向上";
-                    else if (!isOnWall) reason = "不在墙上";
-                    Debug.LogWarning($"[贴墙逻辑] ✗ canCling为false，停止贴墙。原因: {reason}");
+                    // 明确不在墙上，停止贴墙
+                    if (debugWallDetection)
+                    {
+                        Debug.LogWarning($"[贴墙逻辑] ✗ 不在墙上，停止贴墙");
+                    }
+                    OnWallClingEnd();
+                    isWallClinging = false;
                 }
-                OnWallClingEnd();
+                else
+                {
+                    // 仍在墙上，但canCling为false（可能是速度或其他条件），保持贴墙状态
+                    // 确保Climbing保持为true
+                    animator.SetBool("Climbing", true);
+                    rb.velocity = new Vector2(rb.velocity.x, 0f); // 保持停止下落
+                }
             }
-            isWallClinging = false;
+            else
+            {
+                // 如果不在墙上且不在小球悬挂状态，确保Climbing为false
+                if (!isOnWall && !isHangingOnBall)
+                {
+                    animator.SetBool("Climbing", false);
+                }
+            }
         }
     }
 
     void OnWallClingStart()
     {
-        // 触发爬墙动画
-        animator.SetTrigger(climbTrigger);
+        // 设置爬墙动画Bool变量
+        animator.SetBool("Climbing", true);
         
         // 贴墙时刷新冲刺和二段跳
         canDash = true;
@@ -908,7 +984,36 @@ public class PlatformerMovement : MonoBehaviour
 
     void OnWallClingEnd()
     {
-        // 贴墙结束时的处理
+        // 贴墙结束时关闭爬墙动画
+        animator.SetBool("Climbing", false);
+    }
+    
+    void OnBallHangingStart()
+    {
+        // 开始悬挂在小球上
+        isHangingOnBall = true;
+        
+        // 重置二段跳和冲刺
+        canDash = true;
+        dashUsedInAir = 0;
+        if (hasDoubleJump)
+        {
+            canDoubleJump = true;
+            hasUsedDoubleJump = false; // 重置二段跳使用状态
+        }
+        
+        // 停止下落
+        rb.velocity = new Vector2(rb.velocity.x, 0f);
+        
+        Debug.Log("[小球悬挂] 玩家开始悬挂在小球上，二段跳和冲刺已重置");
+    }
+    
+    void OnBallHangingEnd()
+    {
+        // 离开小球悬挂状态
+        isHangingOnBall = false;
+        animator.SetBool("Climbing", false);
+        Debug.Log("[小球悬挂] 玩家离开小球");
     }
 
     void WallJump()
@@ -919,13 +1024,14 @@ public class PlatformerMovement : MonoBehaviour
         isJumping = true;
         jumpHoldTime = 0f;
         isWallClinging = false;
+        animator.SetBool("Climbing", false); // 离开贴墙状态，关闭爬墙动画
         jumpInputBufferTimer = 0f;
     }
 
     void HandleGravity()
     {
-        // 如果正在冲刺、贴墙（且拥有贴墙能力）或正在击退，禁用重力
-        if (isDashing || (isWallClinging && hasWallCling) || isKnockbackActive)
+        // 如果正在冲刺、贴墙（且拥有贴墙能力）、悬挂在小球上或正在击退，禁用重力
+        if (isDashing || (isWallClinging && hasWallCling) || isHangingOnBall || isKnockbackActive)
         {
             rb.gravityScale = 0f;
         }
@@ -1006,6 +1112,17 @@ public class PlatformerMovement : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        // 检测小球（tag为Ball）
+        if (other.CompareTag("Ball"))
+        {
+            isOnBall = true;
+            // 如果玩家正在下落或速度向下，开始悬挂
+            if (rb.velocity.y <= 0)
+            {
+                OnBallHangingStart();
+            }
+        }
+        
         // 检测道具（通过组件类型）
         if (other.GetComponent<PropDoubleJump>() != null)
         {
@@ -1021,6 +1138,35 @@ public class PlatformerMovement : MonoBehaviour
         else if (other.GetComponent<PropSticky>() != null)
         {
             hasWallCling = true;
+        }
+    }
+    
+    void OnTriggerStay2D(Collider2D other)
+    {
+        // 持续检测小球，如果玩家在小球内且速度向下，保持悬挂状态
+        if (other.CompareTag("Ball") && isOnBall)
+        {
+            // 如果玩家正在下落或速度向下，且未在跳跃上升阶段，开始或保持悬挂
+            if (rb.velocity.y <= 0 && (!isJumping || jumpHoldTime >= minJumpTime))
+            {
+                if (!isHangingOnBall)
+                {
+                    OnBallHangingStart();
+                }
+            }
+        }
+    }
+    
+    void OnTriggerExit2D(Collider2D other)
+    {
+        // 离开小球
+        if (other.CompareTag("Ball"))
+        {
+            isOnBall = false;
+            if (isHangingOnBall)
+            {
+                OnBallHangingEnd();
+            }
         }
     }
 
@@ -1146,6 +1292,9 @@ public class PlatformerMovement : MonoBehaviour
         isAttacking = false;
         isInHitStun = false;
         isKnockbackActive = false;
+        isHangingOnBall = false;
+        isOnBall = false;
+        animator.SetBool("Climbing", false); // 确保关闭爬墙动画
 
         //播放死亡动画
         animator.SetTrigger("Death");
@@ -1178,6 +1327,8 @@ public class PlatformerMovement : MonoBehaviour
         isJumping = false;
         isWallClinging = false;
         isAttacking = false;
+        isHangingOnBall = false;
+        isOnBall = false;
         
         // 重置速度
         rb.velocity = Vector2.zero;
@@ -1221,10 +1372,8 @@ public class PlatformerMovement : MonoBehaviour
         {
             animator.ResetTrigger(dashTrigger);
         }
-        if (!string.IsNullOrEmpty(climbTrigger))
-        {
-            animator.ResetTrigger(climbTrigger);
-        }
+        // 重置Climbing Bool变量
+        animator.SetBool("Climbing", false);
         
         // 重置Float参数
         animator.SetFloat("Speed", 0f);
