@@ -34,6 +34,7 @@ public class PlatformerMovement : MonoBehaviour
     public float dashSpeed = 20f; // 冲刺速度
     public float dashDuration = 0.25f; // 冲刺持续时间
     public float dashCooldown = 0.5f; // 冲刺冷却时间
+    public string dashTrigger = "Dash"; // 冲刺动画触发器
     private bool isDashing = false;
     private float dashTimer = 0f;
     private float dashCooldownTimer = 0f;
@@ -46,6 +47,7 @@ public class PlatformerMovement : MonoBehaviour
     public float maxWallClingDistance = 0.2f; // 最大贴墙距离，超过此距离不认为在墙上
     public float wallJumpHorizontalSpeed = 8.3f; // 贴墙跳跃水平速度
     public bool debugWallDetection = false; // 是否显示墙壁检测调试信息
+    public string climbTrigger = "Climb"; // 爬墙动画触发器
     private bool isWallClinging = false;
     private bool isOnWall = false;
     private int wallDirection = 0; // -1左，1右
@@ -761,6 +763,9 @@ public class PlatformerMovement : MonoBehaviour
         dashCooldownTimer = dashCooldown;
         canDash = false;
         
+        // 触发冲刺动画
+        animator.SetTrigger(dashTrigger);
+        
         // 确定冲刺方向
         float dashDir = Mathf.Sign(transform.localScale.x);
         if (Mathf.Abs(Input.GetAxis("Horizontal")) > 0.1f)
@@ -888,6 +893,9 @@ public class PlatformerMovement : MonoBehaviour
 
     void OnWallClingStart()
     {
+        // 触发爬墙动画
+        animator.SetTrigger(climbTrigger);
+        
         // 贴墙时刷新冲刺和二段跳
         canDash = true;
         dashUsedInAir = 0;
@@ -1138,6 +1146,9 @@ public class PlatformerMovement : MonoBehaviour
         isAttacking = false;
         isInHitStun = false;
         isKnockbackActive = false;
+
+        //播放死亡动画
+        animator.SetTrigger("Death");
         
         Debug.Log("玩家死亡！按J键或点击死亡UI按钮重生");
     }
@@ -1183,8 +1194,44 @@ public class PlatformerMovement : MonoBehaviour
             hasUsedDoubleJump = false;
         }
         
+        // 重置动画机
+        ResetAnimator();
+        
         OnPlayerRespawn?.Invoke();
         Debug.Log("玩家重生！");
+    }
+    
+    /// <summary>
+    /// 重置动画机到初始状态
+    /// </summary>
+    void ResetAnimator()
+    {
+        if (animator == null) return;
+        
+        // 方法1：使用Rebind重新绑定所有参数到默认值（推荐）
+        animator.Rebind();
+        
+        // 方法2：手动重置常用参数（作为备用，确保参数被正确重置）
+        // 重置Trigger参数（防止之前的trigger状态残留）
+        animator.ResetTrigger(attackTrigger);
+        animator.ResetTrigger(hurtTrigger);
+        animator.ResetTrigger("Jump");
+        animator.ResetTrigger("Death");
+        if (!string.IsNullOrEmpty(dashTrigger))
+        {
+            animator.ResetTrigger(dashTrigger);
+        }
+        if (!string.IsNullOrEmpty(climbTrigger))
+        {
+            animator.ResetTrigger(climbTrigger);
+        }
+        
+        // 重置Float参数
+        animator.SetFloat("Speed", 0f);
+        
+        // 确保动画机播放默认状态（通常是Idle状态）
+        // 注意：这需要Animator Controller中有名为"Idle"的状态，如果没有可以注释掉
+        // animator.Play("Idle", 0, 0f);
     }
 
     // 协程：处理无敌时间和闪烁
