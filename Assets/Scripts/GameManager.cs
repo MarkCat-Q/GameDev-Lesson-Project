@@ -25,6 +25,27 @@ public class GameManager : MonoBehaviour
     
     private Coroutine healthBarBounceCoroutine; // 当前运行的跃动效果协程
     
+    [Header("BGM设置")]
+    [SerializeField] private AudioSource bgmAudioSource; // BGM音频源（如果未指定会自动创建）
+    [SerializeField] private GameObject bgmAudioSourceGameObject; // BGM音频源GameObject（如果未指定AudioSource，可通过此方式指定）
+    
+    [Header("区域1 BGM设置")]
+    [SerializeField] private AudioClip zone1InitialBGM; // 区域1初始BGM
+    [SerializeField] private AudioClip[] zone1RandomBGMs; // 区域1随机BGM列表
+    [SerializeField] private Vector2 zone1RandomInterval = new Vector2(3f, 8f); // 区域1随机播放间隔（最小-最大秒数）
+    
+    [Header("区域2 BGM设置")]
+    [SerializeField] private AudioClip[] zone2RandomBGMs; // 区域2随机BGM列表
+    [SerializeField] private Vector2 zone2RandomInterval = new Vector2(3f, 8f); // 区域2随机播放间隔（最小-最大秒数）
+    
+    [Header("区域3 BGM设置")]
+    [SerializeField] private AudioClip zone3LoopBGM; // 区域3循环BGM
+    
+    private int currentZone = 0; // 当前所在区域（0=无区域，1/2/3=对应区域）
+    private Coroutine zone1BGMCoroutine; // 区域1的BGM协程
+    private Coroutine zone2BGMCoroutine; // 区域2的BGM协程
+    private Coroutine zone3BGMCoroutine; // 区域3的BGM协程
+    
     void Start()
     {
         // 如果未在Inspector中指定玩家，自动查找
@@ -50,6 +71,12 @@ public class GameManager : MonoBehaviour
         
         // 订阅玩家事件
         SubscribeToPlayerEvents();
+        
+        // 初始化BGM系统
+        InitializeBGM();
+        
+        // 游戏开始时自动播放区域1的初始BGM
+        StartZone1BGM();
     }
     
     /// <summary>
@@ -386,4 +413,281 @@ public class GameManager : MonoBehaviour
     {
         Application.Quit();
     }
+    
+    #region BGM管理
+    
+    /// <summary>
+    /// 初始化BGM系统
+    /// </summary>
+    void InitializeBGM()
+    {
+        // 如果未指定AudioSource，尝试从GameObject获取
+        if (bgmAudioSource == null && bgmAudioSourceGameObject != null)
+        {
+            bgmAudioSource = bgmAudioSourceGameObject.GetComponent<AudioSource>();
+        }
+        
+        // 如果仍然没有找到，尝试通过名称查找或创建
+        if (bgmAudioSource == null)
+        {
+            GameObject bgmObj = GameObject.Find("BGMAudioSource");
+            if (bgmObj != null)
+            {
+                bgmAudioSource = bgmObj.GetComponent<AudioSource>();
+            }
+            else
+            {
+                // 创建新的GameObject和AudioSource
+                bgmObj = new GameObject("BGMAudioSource");
+                bgmAudioSource = bgmObj.AddComponent<AudioSource>();
+                bgmAudioSource.loop = false; // 默认不循环，由各区域逻辑控制
+                bgmAudioSource.playOnAwake = false;
+            }
+        }
+        
+        if (bgmAudioSource == null)
+        {
+            Debug.LogWarning("[GameManager] 未找到BGM AudioSource！已自动创建。");
+        }
+    }
+    
+    /// <summary>
+    /// 玩家进入BGM区域时的回调
+    /// </summary>
+    /// <param name="zoneNumber">区域编号</param>
+    public void OnPlayerEnterBGMZone(int zoneNumber)
+    {
+        // 如果已经在同一区域，不重复处理
+        if (currentZone == zoneNumber) return;
+        
+        // 停止当前区域的BGM
+        StopCurrentZoneBGM();
+        
+        // 切换到新区域
+        currentZone = zoneNumber;
+        
+        // 根据区域播放对应的BGM
+        switch (zoneNumber)
+        {
+            case 1:
+                StartZone1BGM();
+                break;
+            case 2:
+                StartZone2BGM();
+                break;
+            case 3:
+                StartZone3BGM();
+                break;
+        }
+    }
+    
+    /// <summary>
+    /// 玩家离开BGM区域时的回调
+    /// </summary>
+    /// <param name="zoneNumber">区域编号</param>
+    public void OnPlayerExitBGMZone(int zoneNumber)
+    {
+        // 如果离开的是当前区域，停止BGM
+        if (currentZone == zoneNumber)
+        {
+            StopCurrentZoneBGM();
+            currentZone = 0;
+        }
+    }
+    
+    /// <summary>
+    /// 停止当前区域的BGM
+    /// </summary>
+    void StopCurrentZoneBGM()
+    {
+        // 停止所有BGM协程
+        if (zone1BGMCoroutine != null)
+        {
+            StopCoroutine(zone1BGMCoroutine);
+            zone1BGMCoroutine = null;
+        }
+        if (zone2BGMCoroutine != null)
+        {
+            StopCoroutine(zone2BGMCoroutine);
+            zone2BGMCoroutine = null;
+        }
+        if (zone3BGMCoroutine != null)
+        {
+            StopCoroutine(zone3BGMCoroutine);
+            zone3BGMCoroutine = null;
+        }
+        
+        // 停止音频播放
+        if (bgmAudioSource != null && bgmAudioSource.isPlaying)
+        {
+            bgmAudioSource.Stop();
+        }
+    }
+    
+    /// <summary>
+    /// 开始区域1的BGM播放
+    /// </summary>
+    void StartZone1BGM()
+    {
+        if (zone1BGMCoroutine != null)
+        {
+            StopCoroutine(zone1BGMCoroutine);
+        }
+        zone1BGMCoroutine = StartCoroutine(Zone1BGMPlayback());
+    }
+    
+    /// <summary>
+    /// 区域1的BGM播放协程：先播放初始BGM，然后随机间隔播放随机BGM
+    /// </summary>
+    IEnumerator Zone1BGMPlayback()
+    {
+        if (bgmAudioSource == null) yield break;
+        
+        // 1. 播放初始BGM
+        if (zone1InitialBGM != null)
+        {
+            bgmAudioSource.clip = zone1InitialBGM;
+            bgmAudioSource.loop = false;
+            bgmAudioSource.Play();
+            
+            // 等待初始BGM播放完成
+            while (bgmAudioSource.isPlaying && currentZone == 1)
+            {
+                yield return null;
+            }
+        }
+        
+        // 2. 如果区域1的随机BGM列表为空，结束
+        if (zone1RandomBGMs == null || zone1RandomBGMs.Length == 0)
+        {
+            Debug.LogWarning("[GameManager] 区域1的随机BGM列表为空！");
+            yield break;
+        }
+        
+        // 3. 循环随机播放BGM
+        while (currentZone == 1)
+        {
+            // 随机选择一个BGM
+            AudioClip randomBGM = zone1RandomBGMs[Random.Range(0, zone1RandomBGMs.Length)];
+            
+            if (randomBGM != null)
+            {
+                bgmAudioSource.clip = randomBGM;
+                bgmAudioSource.loop = false;
+                bgmAudioSource.Play();
+                
+                // 等待BGM播放完成
+                while (bgmAudioSource.isPlaying && currentZone == 1)
+                {
+                    yield return null;
+                }
+            }
+            
+            // 如果还在区域1，等待随机间隔后播放下一首
+            if (currentZone == 1)
+            {
+                float waitTime = Random.Range(zone1RandomInterval.x, zone1RandomInterval.y);
+                yield return new WaitForSeconds(waitTime);
+            }
+        }
+        
+        zone1BGMCoroutine = null;
+    }
+    
+    /// <summary>
+    /// 开始区域2的BGM播放
+    /// </summary>
+    void StartZone2BGM()
+    {
+        if (zone2BGMCoroutine != null)
+        {
+            StopCoroutine(zone2BGMCoroutine);
+        }
+        zone2BGMCoroutine = StartCoroutine(Zone2BGMPlayback());
+    }
+    
+    /// <summary>
+    /// 区域2的BGM播放协程：随机间隔播放随机BGM
+    /// </summary>
+    IEnumerator Zone2BGMPlayback()
+    {
+        if (bgmAudioSource == null) yield break;
+        
+        // 如果区域2的随机BGM列表为空，结束
+        if (zone2RandomBGMs == null || zone2RandomBGMs.Length == 0)
+        {
+            Debug.LogWarning("[GameManager] 区域2的随机BGM列表为空！");
+            yield break;
+        }
+        
+        // 循环随机播放BGM
+        while (currentZone == 2)
+        {
+            // 随机选择一个BGM
+            AudioClip randomBGM = zone2RandomBGMs[Random.Range(0, zone2RandomBGMs.Length)];
+            
+            if (randomBGM != null)
+            {
+                bgmAudioSource.clip = randomBGM;
+                bgmAudioSource.loop = false;
+                bgmAudioSource.Play();
+                
+                // 等待BGM播放完成
+                while (bgmAudioSource.isPlaying && currentZone == 2)
+                {
+                    yield return null;
+                }
+            }
+            
+            // 如果还在区域2，等待随机间隔后播放下一首
+            if (currentZone == 2)
+            {
+                float waitTime = Random.Range(zone2RandomInterval.x, zone2RandomInterval.y);
+                yield return new WaitForSeconds(waitTime);
+            }
+        }
+        
+        zone2BGMCoroutine = null;
+    }
+    
+    /// <summary>
+    /// 开始区域3的BGM播放
+    /// </summary>
+    void StartZone3BGM()
+    {
+        if (zone3BGMCoroutine != null)
+        {
+            StopCoroutine(zone3BGMCoroutine);
+        }
+        
+        if (bgmAudioSource == null || zone3LoopBGM == null)
+        {
+            Debug.LogWarning("[GameManager] 区域3的BGM未设置！");
+            return;
+        }
+        
+        // 区域3循环播放
+        bgmAudioSource.clip = zone3LoopBGM;
+        bgmAudioSource.loop = true;
+        bgmAudioSource.Play();
+        
+        // 启动一个协程来监控区域切换
+        zone3BGMCoroutine = StartCoroutine(Zone3BGMPlayback());
+    }
+    
+    /// <summary>
+    /// 区域3的BGM播放协程：监控区域切换
+    /// </summary>
+    IEnumerator Zone3BGMPlayback()
+    {
+        // 只要还在区域3，就一直循环播放（由AudioSource的loop属性控制）
+        while (currentZone == 3 && bgmAudioSource != null && bgmAudioSource.isPlaying)
+        {
+            yield return null;
+        }
+        
+        zone3BGMCoroutine = null;
+    }
+    
+    #endregion
 }
