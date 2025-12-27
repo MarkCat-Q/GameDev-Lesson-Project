@@ -1,131 +1,161 @@
 using UnityEngine;
+using System.Collections; // 必须引用这个，才能使用协程（用于倒计时）
 
 public class PlatformerMovement : MonoBehaviour
 {
-    [Header("�ƶ�����")]
+    [Header("移动设置")]
     public float moveSpeed = 8f;
     public float jumpForce = 12f;
+    public string attackTrigger = "Attack";
 
-    [Header("�������")]
+    [Header("二段跳设置")]
+    public int maxJumps = 2;
+    private int remainJumps;
+
+    [Header("受伤/无敌设置")]
+    public float invincibleTime = 1.5f; // 无敌持续时间
+    private bool isInvincible = false;   // 是否处于无敌状态
+    public string hurtTrigger = "Hurt";
+
+    [Header("层级设置")]
+    public LayerMask groundLayer;
+
     private Rigidbody2D rb;
     private Animator animator;
-
-    private bool isGrounded = false;
+    private SpriteRenderer spriteRenderer; // 用于控制闪烁效果
     private Vector3 originalScale;
-    private float speedMultiplier = 1f; // 速度倍数，用于外部修改（如蜘蛛网减速） // �ؼ����洢ԭʼ��С
+    private float speedMultiplier = 1f;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
-        originalScale = transform.localScale; // �����ʼ��С
+        spriteRenderer = GetComponent<SpriteRenderer>(); // 获取渲染组件
+        originalScale = transform.localScale;
+        remainJumps = maxJumps;
     }
 
     void Update()
     {
-        // ˮƽ�ƶ�
+        // 1. 移动逻辑
         float horizontal = Input.GetAxis("Horizontal");
         rb.velocity = new Vector2(horizontal * moveSpeed * speedMultiplier, rb.velocity.y);
 
-        // ��������
+        // 2. 动画
         animator.SetFloat("Speed", Mathf.Abs(horizontal));
 
-        // ��ɫ���� - �ؼ���ʹ��ԭʼ��С��ֻ�޸�X�᷽��
-        if (horizontal > 0) // �����ƶ�
+        // 3. 翻转
+        if (horizontal > 0) transform.localScale = new Vector3(Mathf.Abs(originalScale.x), originalScale.y, originalScale.z);
+        else if (horizontal < 0) transform.localScale = new Vector3(-Mathf.Abs(originalScale.x), originalScale.y, originalScale.z);
+
+        // 4. 接地与二段跳重置
+        if (IsGroundedSimple() && rb.velocity.y <= 0.1f)
         {
-            transform.localScale = new Vector3(Mathf.Abs(originalScale.x), originalScale.y, originalScale.z);
-        }
-        else if (horizontal < 0) // �����ƶ�
-        {
-            transform.localScale = new Vector3(-Mathf.Abs(originalScale.x), originalScale.y, originalScale.z);
+            remainJumps = maxJumps;
         }
 
-        // �ո����Ծ���  
-        // ��һ��bug����Ծû�м��isGround��Ҳ����˵�����ڿ���ʱ��Ȼ�ܹ���Ծ
-        if (Input.GetKeyDown(KeyCode.Space) && IsGroundedSimple())
+        // 5. 跳跃
+        if (Input.GetKeyDown(KeyCode.Space) && remainJumps > 0)
         {
             Jump();
         }
 
-        // J���������
-        if (Input.GetKeyDown(KeyCode.J))
+        // 6. 攻击
+        if (Input.GetKeyDown(KeyCode.J) || Input.GetButtonDown("Fire1"))
         {
             Attack();
         }
 
-        // ÿ֡ǿ�Ʊ���ԭʼ��С��˫�ر��գ�
         MaintainOriginalScale();
     }
 
-    void Jump()
+    public void Jump()
     {
         rb.velocity = new Vector2(rb.velocity.x, jumpForce);
         animator.SetTrigger("Jump");
-        Debug.Log("ִ����Ծ��");
+        remainJumps--;
     }
 
-    void Attack()
+    public void Attack()
     {
-        animator.SetTrigger("Attack");
-        Debug.Log("ִ�й�����");
+        animator.SetTrigger(attackTrigger);
     }
 
-    // ǿ�Ʊ���ԭʼ��С
+    // --- 受伤逻辑处理 ---
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        // 接地判定
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            // 这里可以保留，也可以通过射线处理
+        }
+
+        // 碰到敌人逻辑
+        if (collision.gameObject.CompareTag("Enemy") && !isInvincible)
+        {
+            TakeDamage();
+        }
+    }
+
+    public void TakeDamage()
+    {
+        if (isInvincible) return;
+
+        // 1. 播放动画
+        animator.SetTrigger(hurtTrigger);
+        Debug.Log("玩家受伤！进入无敌状态");
+
+        // 2. 击退效果（向后上方弹开）
+        float knockbackDir = transform.localScale.x > 0 ? -1 : 1;
+        rb.velocity = new Vector2(knockbackDir * 5f, 6f);
+
+        // 3. 启动无敌协程（倒计时和闪烁）
+        StartCoroutine(InvincibleRoutine());
+    }
+
+    // 协程：处理无敌时间和闪烁
+    IEnumerator InvincibleRoutine()
+    {
+        isInvincible = true;
+
+        // 闪烁效果（每0.1秒切换一次透明度）
+        float timer = 0;
+        while (timer < invincibleTime)
+        {
+            // 变半透明
+            spriteRenderer.color = new Color(1, 1, 1, 0.5f);
+            yield return new WaitForSeconds(0.1f);
+            // 恢复不透明
+            spriteRenderer.color = new Color(1, 1, 1, 1f);
+            yield return new WaitForSeconds(0.1f);
+            timer += 0.2f;
+        }
+
+        spriteRenderer.color = new Color(1, 1, 1, 1f); // 确保最后是完全显示的
+        isInvincible = false;
+        Debug.Log("无敌状态结束");
+    }
+
+    // --- 其他辅助函数 ---
+
     void MaintainOriginalScale()
     {
         if (transform.localScale.x != originalScale.x && transform.localScale.x != -originalScale.x)
         {
-            // ���X���С���޸ģ�ǿ�ƻָ�
             float direction = Mathf.Sign(transform.localScale.x);
             transform.localScale = new Vector3(direction * Mathf.Abs(originalScale.x), originalScale.y, originalScale.z);
         }
-        if (transform.localScale.y != originalScale.y)
-        {
-            // ���Y���С���޸ģ�ǿ�ƻָ�
-            transform.localScale = new Vector3(transform.localScale.x, originalScale.y, originalScale.z);
-        }
     }
 
-    // �򵥵��ŵؼ��
-    bool IsGroundedSimple()
+    public bool IsGroundedSimple()
     {
-        // ����1�����߼��
-        float rayLength = 0.6f; // ������
-        Vector2 rayStart = (Vector2)transform.position + Vector2.down * 0.5f;
-        RaycastHit2D hit = Physics2D.Raycast(rayStart, Vector2.down, rayLength);
-
-        // ���ӻ����ߣ������ã�
-        Debug.DrawRay(rayStart, Vector2.down * rayLength, hit.collider != null ? Color.green : Color.red);
-
+        float rayLength = 0.6f;
+        Vector2 rayStart = (Vector2)transform.position + Vector2.down * 0.4f;
+        RaycastHit2D hit = Physics2D.Raycast(rayStart, Vector2.down, rayLength, groundLayer);
         return hit.collider != null;
     }
 
-    // ��ײ�����Ϊ����
-    void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Ground"))
-        {
-            isGrounded = true;
-        }
-    }
-
-    void OnCollisionExit2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Ground"))
-        {
-            isGrounded = false;
-        }
-    }
-
-    // 设置速度倍数（供外部调用，如蜘蛛网）
-    public void SetSpeedMultiplier(float multiplier)
-    {
-        speedMultiplier = multiplier;
-    }
-
-    // 重置速度倍数（恢复原始速度）
-    public void ResetSpeedMultiplier()
-    {
-        speedMultiplier = 1f;
-    }
+    public void SetSpeedMultiplier(float multiplier) { speedMultiplier = multiplier; }
+    public void ResetSpeedMultiplier() { speedMultiplier = 1f; }
 }
