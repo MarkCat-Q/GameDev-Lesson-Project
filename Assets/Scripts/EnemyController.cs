@@ -24,6 +24,12 @@ public class EnemyController : MonoBehaviour
     [Tooltip("是否播放死亡动画")]
     public bool playDeathAnimation = true;
     
+    [Header("伤害设置")]
+    [Tooltip("对玩家造成的伤害值")]
+    public int damageToPlayer = 1;
+    [Tooltip("玩家标签名称")]
+    public string playerTag = "Player";
+    
     private Rigidbody2D rb;
     private Animator animator;
     private Vector3 originalScale;
@@ -120,6 +126,37 @@ public class EnemyController : MonoBehaviour
         {
             Debug.Log($"[敌人] {gameObject.name} 被攻击！");
             Die();
+        }
+    }
+    
+    // 检测与玩家的碰撞（伤害玩家）
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        // 如果已死亡，不伤害玩家
+        if (isDead) return;
+        
+        // 检测是否是玩家
+        if (collision.gameObject.CompareTag(playerTag))
+        {
+            // 获取玩家的PlatformerMovement组件
+            PlatformerMovement player = collision.gameObject.GetComponent<PlatformerMovement>();
+            if (player != null)
+            {
+                // 计算伤害方向（从敌人指向玩家）
+                Vector2 damageDirection = ((Vector2)collision.transform.position - (Vector2)transform.position).normalized;
+                
+                // 如果方向向量太小（几乎重叠），使用敌人朝向的反方向
+                if (damageDirection.magnitude < 0.1f)
+                {
+                    // 根据敌人朝向确定伤害方向
+                    damageDirection = movingRight ? Vector2.right : Vector2.left;
+                }
+                
+                // 对玩家造成伤害（带击退效果）
+                player.TakeDamage(damageToPlayer, damageDirection, false);
+                
+                Debug.Log($"[敌人] {gameObject.name} 对玩家造成 {damageToPlayer} 点伤害");
+            }
         }
     }
     
