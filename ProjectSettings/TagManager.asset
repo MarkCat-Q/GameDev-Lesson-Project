@@ -7,6 +7,8 @@ TagManager:
   - Ground
   - Enemy
   - AttackZone
+  - Ball
+  - RespawnPoint
   layers:
   - Default
   - TransparentFX

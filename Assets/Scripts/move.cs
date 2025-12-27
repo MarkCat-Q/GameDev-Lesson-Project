@@ -1,11 +1,18 @@
 using UnityEngine;
-using System.Collections; 
+using System.Collections;
+using System; 
 
 public class PlatformerMovement : MonoBehaviour
 {
     [Header("移动设置")]
     public float moveSpeed = 4.2f;
     public string attackTrigger = "Attack";
+    
+    [Header("攻击设置")]
+    public GameObject attackZoneFront; // 前方攻击区域
+    public GameObject attackZoneUp; // 上方攻击区域
+    public GameObject attackZoneDown; // 下方攻击区域
+    public float attackDuration = 0.3f; // 攻击持续时间（秒）
 
     [Header("跳跃设置")]
     public float jumpSpeed = 15.7f; // 跳跃初始速度
@@ -43,10 +50,27 @@ public class PlatformerMovement : MonoBehaviour
     private bool isOnWall = false;
     private int wallDirection = 0; // -1左，1右
 
+    [Header("血量设置")]
+    public int maxHealth = 5; // 最大血量
+    private int currentHealth; // 当前血量
+    public event Action<int, int> OnHealthChanged; // 血量变化事件 (当前血量, 最大血量)
+    public event Action OnPlayerDeath; // 玩家死亡事件
+    public event Action OnPlayerRespawn; // 玩家重生事件
+
     [Header("受伤/无敌设置")]
-    public float invincibleTime = 1.5f; // 无敌持续时间
+    public float invincibleTime = 1.3f; // 无敌持续时间（根据设计文档为1.3秒）
     private bool isInvincible = false;   // 是否处于无敌状态
     public string hurtTrigger = "Hurt";
+    
+    [Header("受伤硬直设置")]
+    public float hitPauseDuration = 0.3f; // 画面暂停时间（根据设计文档为0.3秒）
+    public float knockbackHorizontalSpeed = 15f; // 击退水平速度倍数（根据设计文档为15x）
+    public float knockbackUpwardSpeed = 7.5f; // 击退向上速度倍数（根据设计文档为7.5x）
+    public float knockbackDuration = 0.2f; // 击退持续时间（根据设计文档为0.2秒）
+    
+    [Header("死亡/重生设置")]
+    private bool isDead = false; // 是否死亡
+    private Vector3 respawnPosition; // 重生位置（暂定为原地）
 
     [Header("地面检测设置")]
     public float groundCheckDistance = 0.6f; // 地面检测距离
@@ -69,6 +93,15 @@ public class PlatformerMovement : MonoBehaviour
     // 输入缓冲
     private float jumpInputBufferTime = 0.15f; // 预输入时间窗口
     private float jumpInputBufferTimer = 0f;
+    
+    // 攻击相关
+    private bool isAttacking = false; // 是否正在攻击
+    
+    // 受伤硬直相关
+    private bool isInHitStun = false; // 是否处于硬直状态
+    private bool isKnockbackActive = false; // 是否正在击退
+    private float knockbackTimer = 0f; // 击退计时器
+    private Vector2 knockbackDirection; // 击退方向
 
     void Start()
     {
@@ -80,12 +113,74 @@ public class PlatformerMovement : MonoBehaviour
         
         // 设置重力缩放
         rb.gravityScale = gravityScale;
+        
+        // 初始化攻击触发器（如果未在Inspector中指定，则自动查找子对象）
+        InitializeAttackZones();
+        
+        // 初始禁用所有攻击触发器
+        SetAttackZonesActive(false);
+        
+        // 初始化血量系统
+        currentHealth = maxHealth;
+        respawnPosition = transform.position; // 记录初始位置作为重生点
+        OnHealthChanged?.Invoke(currentHealth, maxHealth); // 通知UI更新
+    }
+    
+    void InitializeAttackZones()
+    {
+        // 如果未在Inspector中指定，则自动查找子对象
+        if (attackZoneFront == null)
+        {
+            Transform front = transform.Find("AttackZoneFront");
+            if (front != null) attackZoneFront = front.gameObject;
+        }
+        
+        if (attackZoneUp == null)
+        {
+            Transform up = transform.Find("AttackZoneUp");
+            if (up != null) attackZoneUp = up.gameObject;
+        }
+        
+        if (attackZoneDown == null)
+        {
+            Transform down = transform.Find("AttackZoneDown");
+            if (down != null) attackZoneDown = down.gameObject;
+        }
+        
+        // 检查是否找到所有攻击区域
+        if (attackZoneFront == null || attackZoneUp == null || attackZoneDown == null)
+        {
+            Debug.LogWarning("[攻击系统] 未找到所有攻击触发器子对象。请确保存在 AttackZoneFront、AttackZoneUp、AttackZoneDown 子对象，或在Inspector中手动指定。");
+        }
+    }
+    
+    void SetAttackZonesActive(bool active)
+    {
+        if (attackZoneFront != null) attackZoneFront.SetActive(active);
+        if (attackZoneUp != null) attackZoneUp.SetActive(active);
+        if (attackZoneDown != null) attackZoneDown.SetActive(active);
     }
 
     void Update()
     {
+        // 如果死亡，只处理重生输入
+        if (isDead)
+        {
+            HandleRespawnInput();
+            return;
+        }
+        
         // 更新计时器
         UpdateTimers();
+        
+        // 更新击退效果
+        UpdateKnockback();
+        
+        // 如果处于硬直状态，不处理其他输入
+        if (isInHitStun)
+        {
+            return;
+        }
         
         // 检测状态
         CheckGrounded();
@@ -94,8 +189,8 @@ public class PlatformerMovement : MonoBehaviour
         // 处理输入缓冲
         HandleInputBuffer();
         
-        // 1. 移动逻辑（非冲刺状态）
-        if (!isDashing)
+        // 1. 移动逻辑（非冲刺状态且不在击退状态）
+        if (!isDashing && !isKnockbackActive)
         {
             float horizontal = Input.GetAxis("Horizontal");
             
@@ -174,6 +269,34 @@ public class PlatformerMovement : MonoBehaviour
         if (dashCooldownTimer > 0)
         {
             dashCooldownTimer -= Time.deltaTime;
+        }
+        
+        // 击退计时器
+        if (isKnockbackActive)
+        {
+            knockbackTimer -= Time.deltaTime;
+            if (knockbackTimer <= 0)
+            {
+                isKnockbackActive = false;
+            }
+        }
+    }
+    
+    void UpdateKnockback()
+    {
+        // 如果正在击退，持续施加击退速度
+        if (isKnockbackActive && knockbackTimer > 0)
+        {
+            rb.velocity = new Vector2(knockbackDirection.x * knockbackHorizontalSpeed, knockbackDirection.y * knockbackUpwardSpeed);
+        }
+    }
+    
+    void HandleRespawnInput()
+    {
+        // 检测重生输入（J键或点击死亡UI按钮）
+        if (Input.GetKeyDown(KeyCode.J))
+        {
+            Respawn();
         }
     }
 
@@ -793,8 +916,8 @@ public class PlatformerMovement : MonoBehaviour
 
     void HandleGravity()
     {
-        // 如果正在冲刺或贴墙（且拥有贴墙能力），禁用重力
-        if (isDashing || (isWallClinging && hasWallCling))
+        // 如果正在冲刺、贴墙（且拥有贴墙能力）或正在击退，禁用重力
+        if (isDashing || (isWallClinging && hasWallCling) || isKnockbackActive)
         {
             rb.gravityScale = 0f;
         }
@@ -804,8 +927,8 @@ public class PlatformerMovement : MonoBehaviour
             rb.gravityScale = gravityScale;
         }
 
-        // 限制最大下落速度
-        if (rb.velocity.y < -maxFallSpeed)
+        // 限制最大下落速度（仅在非击退状态下）
+        if (!isKnockbackActive && rb.velocity.y < -maxFallSpeed)
         {
             rb.velocity = new Vector2(rb.velocity.x, -maxFallSpeed);
         }
@@ -813,7 +936,31 @@ public class PlatformerMovement : MonoBehaviour
 
     public void Attack()
     {
+        // 如果正在攻击，不允许重复攻击
+        if (isAttacking) return;
+        
+        // 触发攻击动画
         animator.SetTrigger(attackTrigger);
+        
+        // 启用攻击触发器
+        SetAttackZonesActive(true);
+        isAttacking = true;
+        
+        // 启动协程，在攻击持续时间后禁用触发器
+        StartCoroutine(EndAttackAfterDuration());
+    }
+    
+    IEnumerator EndAttackAfterDuration()
+    {
+        yield return new WaitForSeconds(attackDuration);
+        EndAttack();
+    }
+    
+    void EndAttack()
+    {
+        // 禁用攻击触发器
+        SetAttackZonesActive(false);
+        isAttacking = false;
     }
 
     // --- 受伤逻辑处理 ---
@@ -839,7 +986,13 @@ public class PlatformerMovement : MonoBehaviour
         // 碰到敌人逻辑
         if (collision.gameObject.CompareTag("Enemy") && !isInvincible)
         {
-            TakeDamage();
+            // 计算伤害方向（从敌人指向玩家）
+            Vector2 damageDirection = ((Vector2)transform.position - (Vector2)collision.transform.position).normalized;
+            if (damageDirection.magnitude < 0.1f) // 如果方向向量太小，使用默认方向
+            {
+                damageDirection = transform.localScale.x > 0 ? Vector2.left : Vector2.right;
+            }
+            TakeDamage(1, damageDirection);
         }
     }
 
@@ -863,20 +1016,175 @@ public class PlatformerMovement : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 受到伤害（无参数版本，用于兼容旧代码）
+    /// </summary>
     public void TakeDamage()
     {
-        if (isInvincible) return;
-
-        // 1. 播放动画
+        // 默认伤害为1，方向为角色当前朝向的反方向
+        float damageDir = transform.localScale.x > 0 ? -1 : 1;
+        TakeDamage(1, new Vector2(damageDir, 0), false);
+    }
+    
+    /// <summary>
+    /// 受到伤害（完整版本，供外部调用）
+    /// </summary>
+    /// <param name="damage">伤害值</param>
+    /// <param name="damageDirection">伤害来源方向（归一化向量）</param>
+    /// <param name="skipKnockback">是否跳过击退效果（用于地刺等场景伤害）</param>
+    public void TakeDamage(int damage, Vector2 damageDirection, bool skipKnockback = false)
+    {
+        // 如果处于无敌状态或已死亡，不处理伤害
+        if (isInvincible || isDead) return;
+        
+        // 1. 扣除血量
+        currentHealth -= damage;
+        currentHealth = Mathf.Max(0, currentHealth); // 确保血量不为负
+        OnHealthChanged?.Invoke(currentHealth, maxHealth); // 通知UI更新
+        
+        Debug.Log($"玩家受到 {damage} 点伤害，当前血量: {currentHealth}/{maxHealth}");
+        
+        // 2. 检查是否死亡
+        if (currentHealth <= 0)
+        {
+            Die();
+            return;
+        }
+        
+        // 3. 启动受伤硬直协程（包含画面暂停、击退、无敌等效果）
+        StartCoroutine(HitStunRoutine(damageDirection, skipKnockback));
+    }
+    
+    /// <summary>
+    /// 受伤硬直协程（根据设计文档实现）
+    /// </summary>
+    /// <param name="damageDirection">伤害来源方向</param>
+    /// <param name="skipKnockback">是否跳过击退效果</param>
+    IEnumerator HitStunRoutine(Vector2 damageDirection, bool skipKnockback = false)
+    {
+        isInHitStun = true;
+        isInvincible = true; // 提前设置无敌，防止重复受伤
+        
+        // 1. 播放受伤动画
         animator.SetTrigger(hurtTrigger);
-        Debug.Log("玩家受伤！进入无敌状态");
-
-        // 2. 击退效果（向后上方弹开）
-        float knockbackDir = transform.localScale.x > 0 ? -1 : 1;
-        rb.velocity = new Vector2(knockbackDir * 5f, 6f);
-
-        // 3. 启动无敌协程（倒计时和闪烁）
+        
+        // 2. 画面暂停0.3秒（仅非场景伤害时暂停）
+        if (!skipKnockback)
+        {
+            Time.timeScale = 0f;
+            yield return new WaitForSecondsRealtime(hitPauseDuration);
+            Time.timeScale = 1f;
+            
+            // 3. 强制角色面向受到伤害的方向
+            if (damageDirection.x > 0)
+            {
+                // 伤害来自右侧，角色面向右侧
+                transform.localScale = new Vector3(Mathf.Abs(originalScale.x), originalScale.y, originalScale.z);
+            }
+            else if (damageDirection.x < 0)
+            {
+                // 伤害来自左侧，角色面向左侧
+                transform.localScale = new Vector3(-Mathf.Abs(originalScale.x), originalScale.y, originalScale.z);
+            }
+            
+            // 4. 计算击退方向（伤害来源的反方向，向上）
+            // 水平方向：伤害来源的反方向
+            float horizontalDir = damageDirection.x != 0 ? -Mathf.Sign(damageDirection.x) : (transform.localScale.x > 0 ? -1 : 1);
+            // 垂直方向：向上
+            knockbackDirection = new Vector2(horizontalDir, 1f).normalized;
+            
+            // 5. 启动击退效果
+            isKnockbackActive = true;
+            knockbackTimer = knockbackDuration;
+            
+            // 6. 等待击退持续时间
+            yield return new WaitForSeconds(knockbackDuration);
+            
+            // 7. 结束击退状态
+            isKnockbackActive = false;
+        }
+        else
+        {
+            // 场景伤害（如地刺）不暂停画面，不击退，直接进入无敌状态
+            yield return null; // 等待一帧，确保状态更新
+        }
+        
+        // 8. 结束硬直状态
+        isInHitStun = false;
+        
+        // 9. 启动无敌协程（倒计时和闪烁）
         StartCoroutine(InvincibleRoutine());
+    }
+    
+    /// <summary>
+    /// 死亡处理
+    /// </summary>
+    void Die()
+    {
+        if (isDead) return;
+        
+        isDead = true;
+        currentHealth = 0;
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
+        OnPlayerDeath?.Invoke();
+        
+        // 停止所有移动
+        rb.velocity = Vector2.zero;
+        
+        // 禁用所有能力
+        isDashing = false;
+        isJumping = false;
+        isWallClinging = false;
+        isAttacking = false;
+        isInHitStun = false;
+        isKnockbackActive = false;
+        
+        Debug.Log("玩家死亡！按J键或点击死亡UI按钮重生");
+    }
+    
+    /// <summary>
+    /// 重生（可在外部调用，例如死亡UI按钮）
+    /// </summary>
+    /// <param name="respawnPos">重生位置，如果为null则使用默认的重生位置</param>
+    public void Respawn(Vector3? respawnPos = null)
+    {
+        if (!isDead) return;
+        
+        // 重置血量
+        currentHealth = maxHealth;
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
+        
+        // 重置位置（使用指定位置或默认重生位置）
+        Vector3 targetPosition = respawnPos ?? respawnPosition;
+        transform.position = targetPosition;
+        
+        // 重置状态
+        isDead = false;
+        isInvincible = false;
+        isInHitStun = false;
+        isKnockbackActive = false;
+        isDashing = false;
+        isJumping = false;
+        isWallClinging = false;
+        isAttacking = false;
+        
+        // 重置速度
+        rb.velocity = Vector2.zero;
+        
+        // 重置颜色
+        spriteRenderer.color = new Color(1, 1, 1, 1f);
+        
+        // 重置能力状态
+        canDash = true;
+        dashUsedInAir = 0;
+        if (hasDoubleJump)
+        {
+            canDoubleJump = true;
+            hasUsedDoubleJump = false;
+        }
+        
+        OnPlayerRespawn?.Invoke();
+        Debug.Log("玩家重生！");
     }
 
     // 协程：处理无敌时间和闪烁
@@ -915,4 +1223,61 @@ public class PlatformerMovement : MonoBehaviour
 
     public void SetSpeedMultiplier(float multiplier) { speedMultiplier = multiplier; }
     public void ResetSpeedMultiplier() { speedMultiplier = 1f; }
+    
+    // --- 血量系统公共接口 ---
+    
+    /// <summary>
+    /// 获取当前血量
+    /// </summary>
+    public int GetCurrentHealth() { return currentHealth; }
+    
+    /// <summary>
+    /// 获取最大血量
+    /// </summary>
+    public int GetMaxHealth() { return maxHealth; }
+    
+    /// <summary>
+    /// 获取血量百分比（0-1）
+    /// </summary>
+    public float GetHealthPercentage() { return maxHealth > 0 ? (float)currentHealth / maxHealth : 0f; }
+    
+    /// <summary>
+    /// 是否死亡
+    /// </summary>
+    public bool IsDead() { return isDead; }
+    
+    /// <summary>
+    /// 是否处于无敌状态
+    /// </summary>
+    public bool IsInvincible() { return isInvincible; }
+    
+    /// <summary>
+    /// 设置重生位置（供外部调用，例如检查点）
+    /// </summary>
+    public void SetRespawnPosition(Vector3 position)
+    {
+        respawnPosition = position;
+    }
+    
+    /// <summary>
+    /// 治疗（恢复血量）
+    /// </summary>
+    public void Heal(int amount)
+    {
+        if (isDead) return;
+        currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
+    }
+    
+    /// <summary>
+    /// 设置最大血量（并自动调整当前血量）
+    /// </summary>
+    public void SetMaxHealth(int newMaxHealth)
+    {
+        if (newMaxHealth <= 0) return;
+        float healthPercentage = GetHealthPercentage();
+        maxHealth = newMaxHealth;
+        currentHealth = Mathf.RoundToInt(maxHealth * healthPercentage);
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
+    }
 }
