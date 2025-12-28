@@ -7,6 +7,7 @@ public class PlatformerMovement : MonoBehaviour
     [Header("移动设置")]
     public float moveSpeed = 4.2f;
     public string attackTrigger = "Attack";
+    public string attackDownTrigger = "AttackDown";
     
     [Header("攻击设置")]
     public GameObject attackZoneFront; // 前方攻击区域
@@ -102,6 +103,13 @@ public class PlatformerMovement : MonoBehaviour
     
     // 攻击相关
     private bool isAttacking = false; // 是否正在攻击
+    
+    [Header("下抓设置")]
+    public float downslashBounceSpeed = 12f; // 下抓反弹速度（12x）
+    public float downslashBounceDuration = 0.25f; // 下抓反弹持续时间（0.25秒）
+    private bool isDownslashing = false; // 是否正在下抓
+    private bool isBouncing = false; // 是否正在反弹
+    private float bounceTimer = 0f; // 反弹计时器
     
     // 受伤硬直相关
     private bool isInHitStun = false; // 是否处于硬直状态
@@ -201,8 +209,14 @@ public class PlatformerMovement : MonoBehaviour
         {
             float horizontal = Input.GetAxis("Horizontal");
             
+            // 如果正在下抓反弹，保持向上速度
+            if (isBouncing)
+            {
+                // 反弹期间保持向上速度，允许水平移动
+                rb.velocity = new Vector2(horizontal * moveSpeed * speedMultiplier, downslashBounceSpeed);
+            }
             // 如果悬挂在小球上，只允许水平移动，垂直速度保持为0
-            if (isHangingOnBall)
+            else if (isHangingOnBall)
             {
                 rb.velocity = new Vector2(horizontal * moveSpeed * speedMultiplier, 0f);
             }
@@ -240,10 +254,20 @@ public class PlatformerMovement : MonoBehaviour
         // 5. 冲刺逻辑
         HandleDash();
 
-        // 6. 攻击
+        // 6. 攻击/下抓
         if (Input.GetKeyDown(KeyCode.J) || Input.GetButtonDown("Fire1"))
         {
-            Attack();
+            // 检测是否同时按下下方向键
+            if (Input.GetAxisRaw("Vertical") < -0.1f)
+            {
+                // 下方向键被按下，执行下抓
+                Downslash();
+            }
+            else
+            {
+                // 普通攻击
+                Attack();
+            }
         }
 
         // 7. 控制重力
@@ -293,6 +317,16 @@ public class PlatformerMovement : MonoBehaviour
             if (knockbackTimer <= 0)
             {
                 isKnockbackActive = false;
+            }
+        }
+        
+        // 下抓反弹计时器
+        if (isBouncing)
+        {
+            bounceTimer -= Time.deltaTime;
+            if (bounceTimer <= 0)
+            {
+                isBouncing = false;
             }
         }
     }
@@ -1030,8 +1064,8 @@ public class PlatformerMovement : MonoBehaviour
 
     void HandleGravity()
     {
-        // 如果正在冲刺、贴墙（且拥有贴墙能力）、悬挂在小球上或正在击退，禁用重力
-        if (isDashing || (isWallClinging && hasWallCling) || isHangingOnBall || isKnockbackActive)
+        // 如果正在冲刺、贴墙（且拥有贴墙能力）、悬挂在小球上、正在击退或正在反弹，禁用重力
+        if (isDashing || (isWallClinging && hasWallCling) || isHangingOnBall || isKnockbackActive || isBouncing)
         {
             rb.gravityScale = 0f;
         }
@@ -1041,8 +1075,8 @@ public class PlatformerMovement : MonoBehaviour
             rb.gravityScale = gravityScale;
         }
 
-        // 限制最大下落速度（仅在非击退状态下）
-        if (!isKnockbackActive && rb.velocity.y < -maxFallSpeed)
+        // 限制最大下落速度（仅在非击退状态和非反弹状态下）
+        if (!isKnockbackActive && !isBouncing && rb.velocity.y < -maxFallSpeed)
         {
             rb.velocity = new Vector2(rb.velocity.x, -maxFallSpeed);
         }
@@ -1075,6 +1109,115 @@ public class PlatformerMovement : MonoBehaviour
         // 禁用攻击触发器
         SetAttackZonesActive(false);
         isAttacking = false;
+    }
+
+    /// <summary>
+    /// 下抓动作：检测下方可下抓物体，触发反弹并刷新能力
+    /// </summary>
+    public void Downslash()
+    {
+        // 如果正在攻击或下抓，不允许重复下抓
+        if (isAttacking || isDownslashing) return;
+        
+        // 触发下抓攻击动画
+        animator.SetTrigger(attackDownTrigger);
+        
+        // 启用下方攻击区域
+        if (attackZoneDown != null)
+        {
+            attackZoneDown.SetActive(true);
+        }
+        isDownslashing = true;
+        
+        // 检测AttackZoneDown区域内是否有"Downslashable" tag的物体
+        bool foundDownslashable = CheckDownslashableObjects();
+        
+        if (foundDownslashable)
+        {
+            // 触发反弹效果
+            StartDownslashBounce();
+            
+            // 刷新冲刺和二段跳能力
+            canDash = true;
+            dashUsedInAir = 0;
+            if (hasDoubleJump)
+            {
+                canDoubleJump = true;
+                hasUsedDoubleJump = false;
+            }
+            
+            Debug.Log("[下抓] 检测到可下抓物体，触发反弹并刷新冲刺和二段跳能力");
+        }
+        
+        // 启动协程，在下抓持续时间后禁用攻击区域
+        StartCoroutine(EndDownslashAfterDuration());
+    }
+    
+    /// <summary>
+    /// 检测AttackZoneDown区域内是否有"Downslashable" tag的物体
+    /// </summary>
+    bool CheckDownslashableObjects()
+    {
+        if (attackZoneDown == null) return false;
+        
+        // 获取AttackZoneDown的Collider2D
+        Collider2D zoneCollider = attackZoneDown.GetComponent<Collider2D>();
+        if (zoneCollider == null)
+        {
+            Debug.LogWarning("[下抓] AttackZoneDown没有Collider2D组件");
+            return false;
+        }
+        
+        // 获取攻击区域的边界
+        Bounds bounds = zoneCollider.bounds;
+        
+        // 使用OverlapBoxAll检测该区域内的所有碰撞体
+        Collider2D[] colliders = Physics2D.OverlapBoxAll(bounds.center, bounds.size, 0f);
+        
+        foreach (Collider2D col in colliders)
+        {
+            // 检查是否有"Downslashable" tag
+            if (col.CompareTag("Downslashable"))
+            {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /// <summary>
+    /// 开始下抓反弹效果
+    /// </summary>
+    void StartDownslashBounce()
+    {
+        isBouncing = true;
+        bounceTimer = downslashBounceDuration;
+        
+        // 设置向上速度（12x）
+        rb.velocity = new Vector2(rb.velocity.x, downslashBounceSpeed);
+    }
+    
+    /// <summary>
+    /// 结束下抓动作的协程
+    /// </summary>
+    IEnumerator EndDownslashAfterDuration()
+    {
+        yield return new WaitForSeconds(attackDuration);
+        EndDownslash();
+    }
+    
+    /// <summary>
+    /// 结束下抓动作
+    /// </summary>
+    void EndDownslash()
+    {
+        // 禁用下方攻击区域（其他攻击区域应该由EndAttack处理）
+        if (attackZoneDown != null)
+        {
+            attackZoneDown.SetActive(false);
+        }
+        isDownslashing = false;
     }
 
     // --- 受伤逻辑处理 ---
@@ -1218,6 +1361,13 @@ public class PlatformerMovement : MonoBehaviour
     {
         isInHitStun = true;
         isInvincible = true; // 提前设置无敌，防止重复受伤
+        
+        // 清除反弹状态（硬直期间不应该反弹）
+        if (isBouncing)
+        {
+            isBouncing = false;
+            bounceTimer = 0f;
+        }
         
         // 1. 播放受伤动画
         animator.SetTrigger(hurtTrigger);
