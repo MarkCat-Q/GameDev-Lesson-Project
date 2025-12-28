@@ -4,49 +4,95 @@ using UnityEngine;
 
 public class SpiderWeb : MonoBehaviour
 {
-    [Header("减速设置")]
-    [Tooltip("速度降低比例，0.5表示降低到原来的50%")]
-    [Range(0f, 1f)]
-    public float speedReductionRatio = 0.5f;
-
-    // 存储当前在蜘蛛网中的玩家
+    // 存储当前在蜘蛛网中的玩家信息
     private PlatformerMovement playerInWeb = null;
+    private Collider2D webCollider;
+    private Collider2D playerCollider;
 
-    // 当玩家进入蜘蛛网碰撞体时
-    void OnTriggerEnter2D(Collider2D other)
+    void Start()
     {
-        PlatformerMovement player = other.GetComponent<PlatformerMovement>();
-        if (player != null)
+        webCollider = GetComponent<Collider2D>();
+        if (webCollider == null)
         {
-            playerInWeb = player;
-            // 应用减速效果
-            player.SetSpeedMultiplier(speedReductionRatio);
-            Debug.Log($"玩家进入蜘蛛网，速度降低至原来的 {speedReductionRatio * 100}%");
+            Debug.LogError("SpiderWeb 需要 Collider2D 组件！");
         }
     }
 
-    // 当玩家离开蜘蛛网碰撞体时
-    void OnTriggerExit2D(Collider2D other)
+    void FixedUpdate()
     {
-        PlatformerMovement player = other.GetComponent<PlatformerMovement>();
-        if (player != null && player == playerInWeb)
+        // 在物理更新前检测与蜘蛛网重叠的玩家并提前设置碰撞忽略
+        // 这样可以避免在 OnCollisionEnter2D 时已经发生碰撞
+        if (webCollider != null)
         {
-            // 恢复原始速度
-            player.ResetSpeedMultiplier();
-            playerInWeb = null;
-            Debug.Log("玩家离开蜘蛛网，速度已恢复");
+            // 检测与蜘蛛网碰撞体重叠的所有碰撞体
+            ContactFilter2D filter = new ContactFilter2D();
+            filter.NoFilter(); // 不过滤任何层
+            List<Collider2D> overlappingColliders = new List<Collider2D>();
+            webCollider.OverlapCollider(filter, overlappingColliders);
+            
+            // 查找玩家
+            PlatformerMovement foundPlayer = null;
+            Collider2D foundPlayerCollider = null;
+            
+            foreach (Collider2D col in overlappingColliders)
+            {
+                PlatformerMovement player = col.GetComponent<PlatformerMovement>();
+                if (player != null)
+                {
+                    foundPlayer = player;
+                    foundPlayerCollider = col;
+                    break;
+                }
+            }
+            
+            // 如果找到了玩家
+            if (foundPlayer != null)
+            {
+                // 如果还没有记录玩家，或者玩家改变了，更新记录
+                if (playerInWeb == null || foundPlayer != playerInWeb)
+                {
+                    if (playerInWeb != null && playerCollider != null)
+                    {
+                        // 恢复之前的碰撞
+                        Physics2D.IgnoreCollision(playerCollider, webCollider, false);
+                    }
+                    
+                    playerInWeb = foundPlayer;
+                    playerCollider = foundPlayerCollider;
+                }
+                
+                // 根据冲刺状态设置碰撞忽略
+                bool isDashing = foundPlayer.IsDashing();
+                Physics2D.IgnoreCollision(playerCollider, webCollider, isDashing);
+            }
+            else
+            {
+                // 如果没有找到玩家，但之前有记录，清除记录
+                if (playerInWeb != null)
+                {
+                    // 恢复碰撞
+                    if (playerCollider != null)
+                    {
+                        Physics2D.IgnoreCollision(playerCollider, webCollider, false);
+                    }
+                    playerInWeb = null;
+                    playerCollider = null;
+                }
+            }
         }
     }
 
-    // 如果使用碰撞体而不是触发器，也可以使用这个方法
+    // 当玩家进入蜘蛛网碰撞体时（需要碰撞体是非触发器）
     void OnCollisionEnter2D(Collision2D collision)
     {
         PlatformerMovement player = collision.gameObject.GetComponent<PlatformerMovement>();
         if (player != null)
         {
-            playerInWeb = player;
-            player.SetSpeedMultiplier(speedReductionRatio);
-            Debug.Log($"玩家进入蜘蛛网，速度降低至原来的 {speedReductionRatio * 100}%");
+            // 如果玩家不在冲刺状态，说明碰撞没有被忽略，这是正常的阻挡
+            if (!player.IsDashing())
+            {
+                Debug.Log("玩家被蜘蛛网阻挡（需要冲刺才能通过）");
+            }
         }
     }
 
@@ -55,9 +101,7 @@ public class SpiderWeb : MonoBehaviour
         PlatformerMovement player = collision.gameObject.GetComponent<PlatformerMovement>();
         if (player != null && player == playerInWeb)
         {
-            player.ResetSpeedMultiplier();
-            playerInWeb = null;
-            Debug.Log("玩家离开蜘蛛网，速度已恢复");
+            Debug.Log("玩家离开蜘蛛网");
         }
     }
 }

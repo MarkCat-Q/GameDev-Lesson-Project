@@ -1448,6 +1448,11 @@ public class PlatformerMovement : MonoBehaviour
     public bool IsInvincible() { return isInvincible; }
     
     /// <summary>
+    /// 是否正在冲刺
+    /// </summary>
+    public bool IsDashing() { return isDashing; }
+    
+    /// <summary>
     /// 设置重生位置（供外部调用，例如检查点）
     /// </summary>
     public void SetRespawnPosition(Vector3 position)
