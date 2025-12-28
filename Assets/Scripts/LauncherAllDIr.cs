@@ -50,6 +50,9 @@ public class LauncherAllDIr : MonoBehaviour
     
     [Tooltip("是否输出调试日志")]
     public bool debugLog = false;
+    
+    [Tooltip("【调试模式】启用手动发射：玩家进入发射器后静止，按下方向键后才发射")]
+    public bool enableDebugManualLaunch = false;
 
     private float _holdTimer = 0f;
     private bool _isPlayerInside = false;
@@ -64,6 +67,9 @@ public class LauncherAllDIr : MonoBehaviour
     private bool _isLaunching = false;
     private Vector2 _launchVelocity = Vector2.zero;
     private float _launchMaintainTimer = 0f;
+    
+    // 调试模式：手动发射状态
+    private bool _isWaitingForInput = false;
 
     private void Awake()
     {
@@ -103,6 +109,13 @@ public class LauncherAllDIr : MonoBehaviour
 
     private void FixedUpdate()
     {
+        // 调试模式：等待输入时保持玩家静止（优先级最高）
+        if (enableDebugManualLaunch && _isWaitingForInput && _playerRb != null)
+        {
+            _playerRb.velocity = Vector2.zero;
+            return; // 等待输入时，不执行后续的发射速度保持逻辑
+        }
+        
         // 在物理更新中持续保持发射速度，防止被玩家的移动系统覆盖
         if (_isLaunching && _launchMaintainTimer > 0f)
         {
@@ -160,9 +173,25 @@ public class LauncherAllDIr : MonoBehaviour
             _playerMovement = _playerObject.GetComponent<PlatformerMovement>();
         }
 
-        if (debugLog)
+        // 调试模式：进入后静止，等待方向键输入
+        if (enableDebugManualLaunch)
         {
-            Debug.Log($"[全方向发射器] 玩家进入触发器，开始蓄力...");
+            _isWaitingForInput = true;
+            if (_playerRb != null)
+            {
+                _playerRb.velocity = Vector2.zero;
+            }
+            if (debugLog)
+            {
+                Debug.Log($"[全方向发射器-调试模式] 玩家进入触发器，等待方向键输入...");
+            }
+        }
+        else
+        {
+            if (debugLog)
+            {
+                Debug.Log($"[全方向发射器] 玩家进入触发器，开始蓄力...");
+            }
         }
     }
 
@@ -178,6 +207,28 @@ public class LauncherAllDIr : MonoBehaviour
         if (_hasLaunchedThisStay)
             return;
 
+        // 调试模式：等待方向键输入，按下后立即发射
+        if (enableDebugManualLaunch && _isWaitingForInput)
+        {
+            Vector2 dir = GetInputDirection();
+            if (dir.sqrMagnitude > 0.0001f)
+            {
+                // 检测到方向键输入，立即发射
+                _isWaitingForInput = false;
+                LaunchPlayer(dir.normalized);
+                _hasLaunchedThisStay = true;
+                _cooldownTimer = launchCooldown;
+                
+                if (debugLog)
+                {
+                    Debug.Log($"[全方向发射器-调试模式] 检测到方向键输入: {dir}，立即发射");
+                }
+            }
+            // 如果没有输入，继续等待（速度在 FixedUpdate 中被设置为0）
+            return;
+        }
+
+        // 正常模式：蓄力后发射
         _holdTimer += Time.deltaTime;
 
         if (_holdTimer >= holdTimeThreshold)
@@ -316,6 +367,7 @@ public class LauncherAllDIr : MonoBehaviour
         _isPlayerInside = false;
         _hasLaunchedThisStay = false;
         _holdTimer = 0f;
+        _isWaitingForInput = false; // 重置等待输入状态
         
         // 注意：不清空 _playerRb 和 _playerObject，因为可能还在发射状态中
         // 只有在发射状态完全结束后才清空（在 Update 中处理）

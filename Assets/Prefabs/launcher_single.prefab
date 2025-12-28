@@ -152,7 +152,7 @@ MonoBehaviour:
   disableInputDuration: 0
   launchVelocityMaintainDuration: 0.2
   launchSound: {fileID: 0}
-  launchEffectPrefab: {fileID: 0}
+  launchEffectPrefab: {fileID: 7204429219805006232, guid: 1951194dd6c93b7458a4425b33e87084, type: 3}
   effectOffset: {x: 0, y: 0}
   debugDrawDirection: 1
   debugLog: 1
