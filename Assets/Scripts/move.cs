@@ -8,6 +8,7 @@ public class PlatformerMovement : MonoBehaviour
     public float moveSpeed = 4.2f;
     public string attackTrigger = "Attack";
     public string attackDownTrigger = "AttackDown";
+    public string attackUpTrigger = "AttackUp";
     
     [Header("攻击设置")]
     public GameObject attackZoneFront; // 前方攻击区域
@@ -110,6 +111,9 @@ public class PlatformerMovement : MonoBehaviour
     private bool isDownslashing = false; // 是否正在下抓
     private bool isBouncing = false; // 是否正在反弹
     private float bounceTimer = 0f; // 反弹计时器
+    
+    [Header("上抓设置")]
+    private bool isUpslashing = false; // 是否正在上抓
     
     // 受伤硬直相关
     private bool isInHitStun = false; // 是否处于硬直状态
@@ -254,14 +258,22 @@ public class PlatformerMovement : MonoBehaviour
         // 5. 冲刺逻辑
         HandleDash();
 
-        // 6. 攻击/下抓
+        // 6. 攻击/下抓/上抓
         if (Input.GetKeyDown(KeyCode.J) || Input.GetButtonDown("Fire1"))
         {
+            float vertical = Input.GetAxisRaw("Vertical");
+            
             // 检测是否同时按下下方向键
-            if (Input.GetAxisRaw("Vertical") < -0.1f)
+            if (vertical < -0.1f)
             {
                 // 下方向键被按下，执行下抓
                 Downslash();
+            }
+            // 检测是否同时按下上方向键
+            else if (vertical > 0.1f)
+            {
+                // 上方向键被按下，执行上抓
+                Upslash();
             }
             else
             {
@@ -1220,6 +1232,93 @@ public class PlatformerMovement : MonoBehaviour
         isDownslashing = false;
     }
 
+    /// <summary>
+    /// 上抓动作：检测上方Ground物体，如果正在上升则停止上升
+    /// </summary>
+    public void Upslash()
+    {
+        // 如果正在攻击、上抓或下抓，不允许重复上抓
+        if (isAttacking || isUpslashing || isDownslashing) return;
+        
+        // 触发上抓攻击动画
+        animator.SetTrigger(attackUpTrigger);
+        
+        // 启用上方攻击区域
+        if (attackZoneUp != null)
+        {
+            attackZoneUp.SetActive(true);
+        }
+        isUpslashing = true;
+        
+        // 检测AttackZoneUp区域内是否有"Ground" tag的物体
+        bool foundGround = CheckUpslashableObjects();
+        
+        // 如果玩家正在上升且检测到Ground，将纵向速度降为0
+        if (foundGround && rb.velocity.y > 0)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, 0f);
+            Debug.Log("[上抓] 检测到Ground物体，正在上升，纵向速度已降为0");
+        }
+        
+        // 启动协程，在上抓持续时间后禁用攻击区域
+        StartCoroutine(EndUpslashAfterDuration());
+    }
+    
+    /// <summary>
+    /// 检测AttackZoneUp区域内是否有"Ground" tag的物体
+    /// </summary>
+    bool CheckUpslashableObjects()
+    {
+        if (attackZoneUp == null) return false;
+        
+        // 获取AttackZoneUp的Collider2D
+        Collider2D zoneCollider = attackZoneUp.GetComponent<Collider2D>();
+        if (zoneCollider == null)
+        {
+            Debug.LogWarning("[上抓] AttackZoneUp没有Collider2D组件");
+            return false;
+        }
+        
+        // 获取攻击区域的边界
+        Bounds bounds = zoneCollider.bounds;
+        
+        // 使用OverlapBoxAll检测该区域内的所有碰撞体
+        Collider2D[] colliders = Physics2D.OverlapBoxAll(bounds.center, bounds.size, 0f);
+        
+        foreach (Collider2D col in colliders)
+        {
+            // 检查是否有"Ground" tag且不是触发器
+            if (col.CompareTag("Ground") && !col.isTrigger)
+            {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /// <summary>
+    /// 结束上抓动作的协程
+    /// </summary>
+    IEnumerator EndUpslashAfterDuration()
+    {
+        yield return new WaitForSeconds(attackDuration);
+        EndUpslash();
+    }
+    
+    /// <summary>
+    /// 结束上抓动作
+    /// </summary>
+    void EndUpslash()
+    {
+        // 禁用上方攻击区域（其他攻击区域应该由EndAttack处理）
+        if (attackZoneUp != null)
+        {
+            attackZoneUp.SetActive(false);
+        }
+        isUpslashing = false;
+    }
+
     // --- 受伤逻辑处理 ---
 
     void OnCollisionEnter2D(Collision2D collision)
@@ -1440,6 +1539,8 @@ public class PlatformerMovement : MonoBehaviour
         isJumping = false;
         isWallClinging = false;
         isAttacking = false;
+        isDownslashing = false;
+        isUpslashing = false;
         isInHitStun = false;
         isKnockbackActive = false;
         isHangingOnBall = false;
@@ -1477,6 +1578,8 @@ public class PlatformerMovement : MonoBehaviour
         isJumping = false;
         isWallClinging = false;
         isAttacking = false;
+        isDownslashing = false;
+        isUpslashing = false;
         isHangingOnBall = false;
         isOnBall = false;
         

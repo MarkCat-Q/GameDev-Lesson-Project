@@ -9,6 +9,7 @@ TagManager:
   - AttackZone
   - Ball
   - RespawnPoint
+  - Downslashable
   layers:
   - Default
   - TransparentFX
