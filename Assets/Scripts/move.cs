@@ -710,7 +710,7 @@ public class PlatformerMovement : MonoBehaviour
             jumpInputBufferTimer = jumpInputBufferTime;
         }
         // 如果正在按住空格键且输入缓冲已过期，重新设置（用于长按情况）
-        else if (Input.GetKey(KeyCode.Space) && jumpInputBufferTimer <= 0 && !isJumping)
+        else if ((Input.GetKey(KeyCode.Space)||(Input.GetButton("Fire2"))) && jumpInputBufferTimer <= 0 && !isJumping)
         {
             jumpInputBufferTimer = jumpInputBufferTime;
         }
@@ -748,7 +748,7 @@ public class PlatformerMovement : MonoBehaviour
         }
 
         // 检测跳跃输入（包括预输入）
-        bool jumpInput = jumpInputBufferTimer > 0 || Input.GetKeyDown(KeyCode.Space);
+        bool jumpInput = jumpInputBufferTimer > 0 || Input.GetKeyDown(KeyCode.Space)||Input.GetButtonDown("Fire2");
         
         if (jumpInput)
         {
