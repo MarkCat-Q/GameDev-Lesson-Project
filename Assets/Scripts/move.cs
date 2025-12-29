@@ -1337,8 +1337,20 @@ public class PlatformerMovement : MonoBehaviour
         // 接地判定
         if (collision.gameObject.CompareTag("Ground"))
         {
-            // 落地时重置状态
-            if (rb.velocity.y <= 0.1f)
+            // 检查碰撞点是否在玩家下方（避免顶到天花板时误判为落地）
+            bool isCollisionFromBelow = false;
+            foreach (ContactPoint2D contact in collision.contacts)
+            {
+                // 如果碰撞点的Y坐标小于玩家中心点的Y坐标，说明碰撞来自下方（地面）
+                if (contact.point.y < transform.position.y)
+                {
+                    isCollisionFromBelow = true;
+                    break;
+                }
+            }
+            
+            // 只有当碰撞来自下方且速度向下时，才认为是落地
+            if (isCollisionFromBelow && rb.velocity.y <= 0.1f)
             {
                 canDash = true;
                 dashUsedInAir = 0;
