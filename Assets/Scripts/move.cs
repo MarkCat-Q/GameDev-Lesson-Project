@@ -45,6 +45,7 @@ public class PlatformerMovement : MonoBehaviour
 
     [Header("贴墙设置")]
     public bool hasWallCling = false; // 是否拥有贴墙能力
+    public bool ClimbWallFix = true; // 是否修复爬墙逻辑
     public float wallCheckDistance = 0.5f; // 检测墙壁的距离
     public float maxWallClingDistance = 0.2f; // 最大贴墙距离，超过此距离不认为在墙上
     public float wallJumpHorizontalSpeed = 8.3f; // 贴墙跳跃水平速度
@@ -779,22 +780,32 @@ public class PlatformerMovement : MonoBehaviour
                         jumpInputBufferTimer = 0f; // 清除输入缓冲
                     }
                 }
-                // 贴墙跳跃（需要按下与墙壁相反方向的方向键）
+                // 贴墙跳跃
                 else if (isWallClinging && hasWallCling)
                 {
-                    float horizontal = Input.GetAxis("Horizontal");
-                    // 检查是否按下与墙壁相反方向的方向键
-                    // 贴在左墙（wallDirection == -1）时，需要按下右方向键（horizontal > 0）
-                    // 贴在右墙（wallDirection == 1）时，需要按下左方向键（horizontal < 0）
-                    bool pressingOppositeDirection = (wallDirection == -1 && horizontal > 0.1f) || 
-                                                    (wallDirection == 1 && horizontal < -0.1f);
-                    
-                    if (pressingOppositeDirection)
+                    // 如果开启了贴墙修复选项，需要按下与墙壁相反方向的方向键才能跳跃
+                    if (ClimbWallFix)
                     {
+                        float horizontal = Input.GetAxis("Horizontal");
+                        // 检查是否按下与墙壁相反方向的方向键
+                        // 贴在左墙（wallDirection == -1）时，需要按下右方向键（horizontal > 0）
+                        // 贴在右墙（wallDirection == 1）时，需要按下左方向键（horizontal < 0）
+                        bool pressingOppositeDirection = (wallDirection == -1 && horizontal > 0.1f) || 
+                                                        (wallDirection == 1 && horizontal < -0.1f);
+                        
+                        if (pressingOppositeDirection)
+                        {
+                            WallJump();
+                            jumpInputBufferTimer = 0f; // 清除输入缓冲
+                        }
+                        // 如果只按了跳跃键但没有按相反方向键，不执行跳跃（防止沿墙上升）
+                    }
+                    else
+                    {
+                        // 如果关闭了"可爬墙"选项，只按跳跃键即可跳跃（可能沿墙上升）
                         WallJump();
                         jumpInputBufferTimer = 0f; // 清除输入缓冲
                     }
-                    // 如果只按了跳跃键但没有按相反方向键，不执行跳跃（防止沿墙上升）
                 }
             }
         }
