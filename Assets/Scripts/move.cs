@@ -715,7 +715,7 @@ public class PlatformerMovement : MonoBehaviour
     void HandleJump()
     {
         // 检测按住跳跃键
-        if (Input.GetKey(KeyCode.Space) && isJumping)
+        if (Input.GetKey(KeyCode.Space) && isJumping && !isOnWall)
         {
             jumpHoldTime += Time.deltaTime;
             // 如果还在最大跳跃时间内，继续给予向上的力
@@ -759,7 +759,7 @@ public class PlatformerMovement : MonoBehaviour
             else
             {
                 bool inCoyoteTime = !isGrounded && wasGrounded && coyoteTimeTimer <= coyoteTime;
-                bool canNormalJump = (isGrounded || inCoyoteTime) && !isJumping && !isWallClinging && !isHangingOnBall;
+                bool canNormalJump = (isGrounded || inCoyoteTime) && !isJumping && !isOnWall && !isHangingOnBall;
                 
                 if (canNormalJump)
                 {
@@ -775,11 +775,22 @@ public class PlatformerMovement : MonoBehaviour
                         jumpInputBufferTimer = 0f; // 清除输入缓冲
                     }
                 }
-                // 贴墙跳跃
+                // 贴墙跳跃（需要按下与墙壁相反方向的方向键）
                 else if (isWallClinging && hasWallCling)
                 {
-                    WallJump();
-                    jumpInputBufferTimer = 0f; // 清除输入缓冲
+                    float horizontal = Input.GetAxis("Horizontal");
+                    // 检查是否按下与墙壁相反方向的方向键
+                    // 贴在左墙（wallDirection == -1）时，需要按下右方向键（horizontal > 0）
+                    // 贴在右墙（wallDirection == 1）时，需要按下左方向键（horizontal < 0）
+                    bool pressingOppositeDirection = (wallDirection == -1 && horizontal > 0.1f) || 
+                                                    (wallDirection == 1 && horizontal < -0.1f);
+                    
+                    if (pressingOppositeDirection)
+                    {
+                        WallJump();
+                        jumpInputBufferTimer = 0f; // 清除输入缓冲
+                    }
+                    // 如果只按了跳跃键但没有按相反方向键，不执行跳跃（防止沿墙上升）
                 }
             }
         }
