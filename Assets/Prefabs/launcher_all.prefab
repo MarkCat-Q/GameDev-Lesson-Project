@@ -145,7 +145,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerTag: Player
   holdTimeThreshold: 0
-  launchForce: 15
+  launchForce: 30
   launchCooldown: 0.3
   resetPlayerAbilitiesOnLaunch: 1
   disableInputDuration: 0
