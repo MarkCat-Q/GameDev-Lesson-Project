@@ -122,25 +122,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &107603167 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8462159365834829182, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
-  m_PrefabInstance: {fileID: 8281053263462990685}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &107603170
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 107603167}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76541824ed541b44ea66d3c71cad62f3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  zoneNumber: 3
-  playerTag: Player
 --- !u!1 &214628645
 GameObject:
   m_ObjectHideFlags: 0
@@ -122214,25 +122195,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!1 &1610503441 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4118377643360544693, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
-  m_PrefabInstance: {fileID: 8281053263462990685}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1610503444
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1610503441}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76541824ed541b44ea66d3c71cad62f3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  zoneNumber: 2
-  playerTag: Player
 --- !u!1001 &1674959894
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -124907,25 +124869,6 @@ TilemapCollider2D:
   m_MaximumTileChangeCount: 1000
   m_ExtrusionFactor: 0
   m_UseDelaunayMesh: 0
---- !u!1 &1893821585 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1585372922724269979, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
-  m_PrefabInstance: {fileID: 8281053263462990685}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1893821588
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1893821585}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76541824ed541b44ea66d3c71cad62f3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  zoneNumber: 1
-  playerTag: Player
 --- !u!1 &1910336183 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1864018894765522480, guid: cc8d14bfc35b0594f97f82cef6c4ecfc, type: 3}
@@ -125304,14 +125247,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1646098311754268061, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -453.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1646098311754268061, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -455.9
-      objectReference: {fileID: 0}
     - target: {fileID: 2116907116603763924, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
       propertyPath: m_LocalPosition.x
       value: 521
@@ -125361,10 +125296,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 944490353}
     - target: {fileID: 3712986968554607037, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
-      propertyPath: zone3LoopBGM
-      value: 
-      objectReference: {fileID: 8300000, guid: 105989daa6330be4f96cada3a8868353, type: 3}
-    - target: {fileID: 3712986968554607037, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
       propertyPath: bgmAudioSource
       value: 
       objectReference: {fileID: 1910336184}
@@ -125372,10 +125303,6 @@ PrefabInstance:
       propertyPath: healthBarImage
       value: 
       objectReference: {fileID: 2049731174}
-    - target: {fileID: 3712986968554607037, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
-      propertyPath: zone1InitialBGM
-      value: 
-      objectReference: {fileID: 8300000, guid: d4e9c7753be3ac94ba253d83223d76ce, type: 3}
     - target: {fileID: 3712986968554607037, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
       propertyPath: deathUIGameObject
       value: 
@@ -125388,79 +125315,10 @@ PrefabInstance:
       propertyPath: bgmAudioSourceGameObject
       value: 
       objectReference: {fileID: 1910336183}
-    - target: {fileID: 3712986968554607037, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
-      propertyPath: zone1RandomBGMs.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 3712986968554607037, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
-      propertyPath: zone2RandomBGMs.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3712986968554607037, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
-      propertyPath: zone1RandomBGMs.Array.data[0]
-      value: 
-      objectReference: {fileID: 8300000, guid: ecee7bc2fac66a542838381a203ca2aa, type: 3}
-    - target: {fileID: 3712986968554607037, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
-      propertyPath: zone1RandomBGMs.Array.data[1]
-      value: 
-      objectReference: {fileID: 8300000, guid: fda722a3fa247c24a8d4421dd7312c21, type: 3}
-    - target: {fileID: 3712986968554607037, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
-      propertyPath: zone2RandomBGMs.Array.data[0]
-      value: 
-      objectReference: {fileID: 8300000, guid: fda722a3fa247c24a8d4421dd7312c21, type: 3}
-    - target: {fileID: 4422545345056451776, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
-      propertyPath: m_Size.x
-      value: 20.117504
-      objectReference: {fileID: 0}
-    - target: {fileID: 4422545345056451776, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
-      propertyPath: m_Size.y
-      value: 34.424065
-      objectReference: {fileID: 0}
-    - target: {fileID: 4422545345056451776, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
-      propertyPath: m_Offset.x
-      value: 35.21605
-      objectReference: {fileID: 0}
-    - target: {fileID: 4422545345056451776, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
-      propertyPath: m_Offset.y
-      value: 58.3484
-      objectReference: {fileID: 0}
-    - target: {fileID: 8325892737807943006, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
-      propertyPath: m_Size.x
-      value: 64.21699
-      objectReference: {fileID: 0}
-    - target: {fileID: 8325892737807943006, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
-      propertyPath: m_Size.y
-      value: 32.16948
-      objectReference: {fileID: 0}
-    - target: {fileID: 8325892737807943006, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
-      propertyPath: m_Offset.x
-      value: 1.3170204
-      objectReference: {fileID: 0}
-    - target: {fileID: 8325892737807943006, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
-      propertyPath: m_Offset.y
-      value: -15.58474
-      objectReference: {fileID: 0}
-    - target: {fileID: 8532856925657698636, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -548.8
-      objectReference: {fileID: 0}
-    - target: {fileID: 8532856925657698636, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -461.6
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1585372922724269979, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1893821588}
-    - targetCorrespondingSourceObject: {fileID: 4118377643360544693, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1610503444}
-    - targetCorrespondingSourceObject: {fileID: 8462159365834829182, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 107603170}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9a1b81dd546890341a7094ee955bd16b, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4600662610518320473}
   - component: {fileID: 4812920441514819073}
+  - component: {fileID: 2261804880681638720}
   m_Layer: 0
   m_Name: BGMZone1
   m_TagString: Untagged
@@ -77,6 +78,20 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 86.01497, y: 55.765125}
   m_EdgeRadius: 0
+--- !u!114 &2261804880681638720
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1585372922724269979}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76541824ed541b44ea66d3c71cad62f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  zoneNumber: 1
+  playerTag: Player
 --- !u!1 &2567746228224729268
 GameObject:
   m_ObjectHideFlags: 0
@@ -135,12 +150,15 @@ MonoBehaviour:
   bounceDuration: 0.2
   bgmAudioSource: {fileID: 0}
   bgmAudioSourceGameObject: {fileID: 0}
-  zone1InitialBGM: {fileID: 0}
-  zone1RandomBGMs: []
+  zone1InitialBGM: {fileID: 8300000, guid: d4e9c7753be3ac94ba253d83223d76ce, type: 3}
+  zone1RandomBGMs:
+  - {fileID: 8300000, guid: ecee7bc2fac66a542838381a203ca2aa, type: 3}
+  - {fileID: 8300000, guid: fda722a3fa247c24a8d4421dd7312c21, type: 3}
   zone1RandomInterval: {x: 3, y: 8}
-  zone2RandomBGMs: []
+  zone2RandomBGMs:
+  - {fileID: 8300000, guid: fda722a3fa247c24a8d4421dd7312c21, type: 3}
   zone2RandomInterval: {x: 3, y: 8}
-  zone3LoopBGM: {fileID: 0}
+  zone3LoopBGM: {fileID: 8300000, guid: 105989daa6330be4f96cada3a8868353, type: 3}
 --- !u!1 &4118377643360544693
 GameObject:
   m_ObjectHideFlags: 0
@@ -151,6 +169,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1646098311754268061}
   - component: {fileID: 8325892737807943006}
+  - component: {fileID: 6235644632371661834}
   m_Layer: 0
   m_Name: BGMZone2
   m_TagString: Untagged
@@ -167,7 +186,7 @@ Transform:
   m_GameObject: {fileID: 4118377643360544693}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -519, y: -416, z: 0}
+  m_LocalPosition: {x: -453.1, y: -455.9, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -205,7 +224,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 1.7169037, y: -15.58474}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -216,8 +235,22 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 63.41722, y: 32.16948}
   m_EdgeRadius: 0
+--- !u!114 &6235644632371661834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4118377643360544693}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76541824ed541b44ea66d3c71cad62f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  zoneNumber: 2
+  playerTag: Player
 --- !u!1 &8462159365834829182
 GameObject:
   m_ObjectHideFlags: 0
@@ -228,6 +261,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8532856925657698636}
   - component: {fileID: 4422545345056451776}
+  - component: {fileID: 6424740274197876547}
   m_Layer: 0
   m_Name: BGMZone3
   m_TagString: Untagged
@@ -244,7 +278,7 @@ Transform:
   m_GameObject: {fileID: 8462159365834829182}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -488, y: -467, z: 0}
+  m_LocalPosition: {x: -548.8, y: -461.6, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -282,7 +316,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 37.301323, y: -2.4540358}
+  m_Offset: {x: 35.21605, y: 58.3484}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -293,5 +327,19 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 67.749756, y: 26.521952}
+  m_Size: {x: 20.117504, y: 34.424065}
   m_EdgeRadius: 0
+--- !u!114 &6424740274197876547
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8462159365834829182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76541824ed541b44ea66d3c71cad62f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  zoneNumber: 3
+  playerTag: Player
