@@ -3932,11 +3932,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6090654684775662246, guid: 0d311d12034dd634abaa985a4d1bd788, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -35.88316
+      value: -35.944
       objectReference: {fileID: 0}
     - target: {fileID: 6090654684775662246, guid: 0d311d12034dd634abaa985a4d1bd788, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -8.847113
+      value: -9.019
       objectReference: {fileID: 0}
     - target: {fileID: 6090654684775662246, guid: 0d311d12034dd634abaa985a4d1bd788, type: 3}
       propertyPath: m_LocalPosition.z
@@ -114037,11 +114037,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3174662588610825732, guid: b7a52713d34b7a74b9a6e7d35ae70f7f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 3.02
+      value: -23.51
       objectReference: {fileID: 0}
     - target: {fileID: 3174662588610825732, guid: b7a52713d34b7a74b9a6e7d35ae70f7f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -12.66
+      value: -11.07
       objectReference: {fileID: 0}
     - target: {fileID: 3174662588610825732, guid: b7a52713d34b7a74b9a6e7d35ae70f7f, type: 3}
       propertyPath: m_LocalPosition.z
@@ -114095,6 +114095,10 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 1419438717, guid: 07c5672b7a216c943a271e00f13bfc9e, type: 3}
+    - target: {fileID: 7387168245804905051, guid: b7a52713d34b7a74b9a6e7d35ae70f7f, type: 3}
+      propertyPath: groundCheckDistance
+      value: 0.2
+      objectReference: {fileID: 0}
     - target: {fileID: 8785334482033588704, guid: b7a52713d34b7a74b9a6e7d35ae70f7f, type: 3}
       propertyPath: m_Name
       value: Player

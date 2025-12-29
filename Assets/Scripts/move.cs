@@ -701,7 +701,7 @@ public class PlatformerMovement : MonoBehaviour
     void HandleInputBuffer()
     {
         // 检测跳跃输入（预输入）
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Fire2"))
         {
             jumpInputBufferTimer = jumpInputBufferTime;
         }
@@ -715,7 +715,7 @@ public class PlatformerMovement : MonoBehaviour
     void HandleJump()
     {
         // 检测按住跳跃键
-        if (Input.GetKey(KeyCode.Space) && isJumping && !isOnWall)
+        if ((Input.GetKey(KeyCode.Space) || Input.GetButton("Fire2")) && isJumping && !isOnWall)
         {
             jumpHoldTime += Time.deltaTime;
             // 如果还在最大跳跃时间内，继续给予向上的力
@@ -727,7 +727,7 @@ public class PlatformerMovement : MonoBehaviour
         }
 
         // 检测松开跳跃键
-        if (Input.GetKeyUp(KeyCode.Space))
+        if (Input.GetKeyUp(KeyCode.Space) || Input.GetButtonUp("Fire2"))
         {
             // 只有在上升阶段才停止跳跃状态
             if (rb.velocity.y > 0)
@@ -830,7 +830,7 @@ public class PlatformerMovement : MonoBehaviour
         if (!hasDash) return;
 
         // 检测冲刺输入
-        if (Input.GetKeyDown(KeyCode.LeftShift) && canDash && dashCooldownTimer <= 0 && !isDashing)
+        if ((Input.GetKeyDown(KeyCode.LeftShift)||(Input.GetButtonDown("Fire3"))) && canDash && dashCooldownTimer <= 0 && !isDashing)
         {
             StartDash();
         }
