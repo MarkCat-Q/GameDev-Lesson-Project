@@ -91,6 +91,9 @@ public class PlatformerMovement : MonoBehaviour
     private float speedMultiplier = 1f;
     private Collider2D selfCollider; // 自己的碰撞体，用于获取边界和排除检测
 
+    // 发射相关
+    private bool isBeingLaunched = false; // 是否正在被发射器发射
+
     // 跳跃相关
     private bool isGrounded = false;
     private float coyoteTimeTimer = 0f;
@@ -207,9 +210,10 @@ public class PlatformerMovement : MonoBehaviour
         // 处理输入缓冲
         HandleInputBuffer();
         
-        // 1. 移动逻辑（非冲刺状态且不在击退状态）
+        // 1. 移动逻辑（非冲刺状态且不在击退状态且不在被发射状态）
         // 注意：悬挂在小球上时，水平移动仍然允许（玩家可以左右移动）
-        if (!isDashing && !isKnockbackActive)
+        // 注意：正在被发射时，不覆盖速度，让发射器控制速度
+        if (!isDashing && !isKnockbackActive && !isBeingLaunched)
         {
             float horizontal = Input.GetAxis("Horizontal");
             
@@ -1727,6 +1731,16 @@ public class PlatformerMovement : MonoBehaviour
     /// 是否正在冲刺
     /// </summary>
     public bool IsDashing() { return isDashing; }
+    
+    /// <summary>
+    /// 设置是否正在被发射（供发射器调用）
+    /// </summary>
+    public void SetBeingLaunched(bool launched) { isBeingLaunched = launched; }
+    
+    /// <summary>
+    /// 是否正在被发射
+    /// </summary>
+    public bool IsBeingLaunched() { return isBeingLaunched; }
     
     /// <summary>
     /// 设置重生位置（供外部调用，例如检查点）

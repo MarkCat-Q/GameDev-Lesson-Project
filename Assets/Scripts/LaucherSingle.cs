@@ -27,6 +27,12 @@ public class LaucherSingle : MonoBehaviour
 
     [Tooltip("发射速度保持时间（秒），在这段时间内持续保持发射速度，防止被玩家移动系统覆盖")]
     public float launchVelocityMaintainDuration = 0.2f;
+    
+    [Tooltip("碰撞检测距离（玩家碰撞体大小的倍数），用于发射前检测路径上是否有障碍物")]
+    public float collisionCheckDistance = 1.5f;
+    
+    [Tooltip("是否启用碰撞检测，防止玩家被发射到墙里")]
+    public bool enableCollisionCheck = true;
 
     [Header("音效和特效（可选）")]
     [Tooltip("发射时播放的音效")]
@@ -85,6 +91,11 @@ public class LaucherSingle : MonoBehaviour
             if (_launchMaintainTimer <= 0f)
             {
                 _isLaunching = false;
+                // 通知玩家移动系统发射结束
+                if (_playerMovement != null)
+                {
+                    _playerMovement.SetBeingLaunched(false);
+                }
                 // 发射状态结束后，清空玩家引用（如果玩家已经离开触发器）
                 ClearPlayerReferences();
                 if (debugLog)
@@ -105,6 +116,10 @@ public class LaucherSingle : MonoBehaviour
             {
                 _isLaunching = false;
                 _launchMaintainTimer = 0f;
+                if (_playerMovement != null)
+                {
+                    _playerMovement.SetBeingLaunched(false);
+                }
                 if (debugLog)
                 {
                     Debug.LogWarning("[发射器] Rigidbody2D 已失效，停止保持发射速度");
@@ -113,6 +128,7 @@ public class LaucherSingle : MonoBehaviour
             }
             
             // 保持发射速度，但允许重力影响垂直速度（如果发射方向有垂直分量）
+            // 注意：碰撞检测已移除，让物理系统自然处理碰撞，避免误判导致不发射
             // 如果发射方向主要是水平的，保持水平速度，允许垂直速度受重力影响
             // 如果发射方向有垂直分量，保持完整的发射速度
             if (Mathf.Abs(_launchVelocity.y) > 0.1f)
@@ -230,6 +246,12 @@ public class LaucherSingle : MonoBehaviour
         // 设置发射状态
         _isLaunching = true;
         _launchMaintainTimer = launchVelocityMaintainDuration;
+        
+        // 通知玩家移动系统正在被发射
+        if (_playerMovement != null)
+        {
+            _playerMovement.SetBeingLaunched(true);
+        }
         
         // 设置发射速度（直接覆盖，确保发射效果明显）
         _playerRb.velocity = _launchVelocity;
@@ -350,6 +372,81 @@ public class LaucherSingle : MonoBehaviour
             );
             Gizmos.DrawLine(start, start + (Vector3)rotated * 1.2f);
         }
+    }
+
+    /// <summary>
+    /// 检查发射路径前方是否有碰撞
+    /// </summary>
+    private bool CheckCollisionAhead(Vector2 velocity)
+    {
+        if (_playerRb == null || _playerObject == null)
+            return false;
+        
+        // 获取玩家的碰撞体
+        Collider2D playerCollider = _playerObject.GetComponent<Collider2D>();
+        if (playerCollider == null)
+            return false;
+        
+        // 计算检测距离（基于速度和碰撞体大小）
+        float checkDistance = collisionCheckDistance;
+        if (playerCollider.bounds.size.magnitude > 0.1f)
+        {
+            // 使用碰撞体大小的倍数作为基础距离
+            float baseSize = Mathf.Max(playerCollider.bounds.size.x, playerCollider.bounds.size.y);
+            checkDistance = baseSize * collisionCheckDistance;
+        }
+        
+        // 计算下一帧的预期位置
+        Vector2 nextPosition = (Vector2)_playerObject.transform.position + velocity.normalized * checkDistance;
+        
+        // 使用多个检测点（中心、上、下、左、右）
+        Vector2[] checkPoints = new Vector2[]
+        {
+            (Vector2)_playerObject.transform.position, // 当前位置
+            (Vector2)_playerObject.transform.position + Vector2.up * playerCollider.bounds.extents.y,
+            (Vector2)_playerObject.transform.position + Vector2.down * playerCollider.bounds.extents.y,
+            (Vector2)_playerObject.transform.position + Vector2.left * playerCollider.bounds.extents.x,
+            (Vector2)_playerObject.transform.position + Vector2.right * playerCollider.bounds.extents.x
+        };
+        
+        // 检查每个点到目标位置的路径上是否有障碍物
+        foreach (Vector2 startPoint in checkPoints)
+        {
+            Vector2 direction = (nextPosition - startPoint).normalized;
+            float distance = Vector2.Distance(startPoint, nextPosition);
+            
+            // 使用Raycast检测
+            RaycastHit2D hit = Physics2D.Raycast(startPoint, direction, distance);
+            if (hit.collider != null && hit.collider != playerCollider)
+            {
+                // 检查是否是Ground标签的碰撞体
+                if (hit.collider.CompareTag("Ground") && !hit.collider.isTrigger)
+                {
+                    if (debugLog)
+                    {
+                        Debug.Log($"[发射器] 碰撞检测：在路径上发现障碍物 {hit.collider.name}，距离: {hit.distance:F2}");
+                    }
+                    return true;
+                }
+            }
+        }
+        
+        // 使用OverlapBox检测目标位置是否有障碍物
+        Vector2 boxSize = playerCollider.bounds.size * 1.1f; // 稍微放大一点
+        Collider2D[] overlaps = Physics2D.OverlapBoxAll(nextPosition, boxSize, 0f);
+        foreach (Collider2D col in overlaps)
+        {
+            if (col != playerCollider && col.CompareTag("Ground") && !col.isTrigger)
+            {
+                if (debugLog)
+                {
+                    Debug.Log($"[发射器] 碰撞检测：目标位置有障碍物 {col.name}");
+                }
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     // 发射事件（可选，供外部监听）
