@@ -459,7 +459,7 @@ MonoBehaviour:
   knockbackHorizontalSpeed: 15
   knockbackUpwardSpeed: 7.5
   knockbackDuration: 0.2
-  groundCheckDistance: 0.6
+  groundCheckDistance: 0.1
   groundCheckOffset: 0.8
   downslashBounceSpeed: 12
   downslashBounceDuration: 0.1

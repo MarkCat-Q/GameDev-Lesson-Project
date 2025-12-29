@@ -18054,30 +18054,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6142838877401237472, guid: b7a52713d34b7a74b9a6e7d35ae70f7f, type: 3}
-      propertyPath: m_Size.x
-      value: 1.0041238
-      objectReference: {fileID: 0}
-    - target: {fileID: 6142838877401237472, guid: b7a52713d34b7a74b9a6e7d35ae70f7f, type: 3}
-      propertyPath: m_Size.y
-      value: 1.4490235
-      objectReference: {fileID: 0}
-    - target: {fileID: 6142838877401237472, guid: b7a52713d34b7a74b9a6e7d35ae70f7f, type: 3}
-      propertyPath: m_Offset.x
-      value: -0.7223087
-      objectReference: {fileID: 0}
-    - target: {fileID: 6142838877401237472, guid: b7a52713d34b7a74b9a6e7d35ae70f7f, type: 3}
-      propertyPath: m_Offset.y
-      value: -0.76135755
-      objectReference: {fileID: 0}
-    - target: {fileID: 7387168245804905051, guid: b7a52713d34b7a74b9a6e7d35ae70f7f, type: 3}
-      propertyPath: downslashBounceSpeed
-      value: 12
-      objectReference: {fileID: 0}
-    - target: {fileID: 7387168245804905051, guid: b7a52713d34b7a74b9a6e7d35ae70f7f, type: 3}
-      propertyPath: downslashBounceDuration
-      value: 0.1
-      objectReference: {fileID: 0}
     - target: {fileID: 8785334482033588704, guid: b7a52713d34b7a74b9a6e7d35ae70f7f, type: 3}
       propertyPath: m_Name
       value: Player
@@ -18191,10 +18167,6 @@ PrefabInstance:
     - target: {fileID: 1475360199077801172, guid: ece0dbdd1e6336242aee3af229d04716, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5423495395463340429, guid: ece0dbdd1e6336242aee3af229d04716, type: 3}
-      propertyPath: enableDebugManualLaunch
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8658968382223784594, guid: ece0dbdd1e6336242aee3af229d04716, type: 3}
       propertyPath: m_Name
@@ -122313,10 +122285,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: launcher_single
       objectReference: {fileID: 0}
-    - target: {fileID: 9001791150577874126, guid: 0d311d12034dd634abaa985a4d1bd788, type: 3}
-      propertyPath: launchEffectPrefab
-      value: 
-      objectReference: {fileID: 7204429219805006232, guid: 1951194dd6c93b7458a4425b33e87084, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -122368,10 +122336,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5063947146779770946, guid: 31676ce603fd5184c817d72ae99967c0, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7985218477406492120, guid: 31676ce603fd5184c817d72ae99967c0, type: 3}
-      propertyPath: m_IsTrigger
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8717355449705876468, guid: 31676ce603fd5184c817d72ae99967c0, type: 3}
