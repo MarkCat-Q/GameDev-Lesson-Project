@@ -6,8 +6,8 @@ public class FragileTile : MonoBehaviour
     [Header("可击碎方向")]
     [SerializeField] private bool breakFromTop = true;
     [SerializeField] private bool breakFromBottom = true;
-    [SerializeField] private bool breakFromLeft = true;
     [SerializeField] private bool breakFromRight = true;
+    [SerializeField] private bool breakFromLeft = true;
 
     [Header("摧毁设置")]
     [SerializeField] private float destroyDelay = 0f;
