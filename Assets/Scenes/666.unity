@@ -22657,6 +22657,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: fragile_wall_right
       objectReference: {fileID: 0}
+    - target: {fileID: 3234982122264537601, guid: 7ebc6dc09721d09409e6954b9deffbcb, type: 3}
+      propertyPath: breakFromLeft
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3234982122264537601, guid: 7ebc6dc09721d09409e6954b9deffbcb, type: 3}
+      propertyPath: breakFromRight
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3691139335308584425, guid: 7ebc6dc09721d09409e6954b9deffbcb, type: 3}
       propertyPath: m_LocalPosition.x
       value: -24.151264
