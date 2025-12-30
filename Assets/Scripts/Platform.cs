@@ -56,26 +56,36 @@ public class Platform : MonoBehaviour
         if (playerCollider == null)
             return;
         
-        // 检查玩家是否在平台下方
+        // 获取玩家的位置信息
+        float playerTop = playerCollider.bounds.max.y;
         float playerBottom = playerCollider.bounds.min.y;
         float platformTop = platformCollider.bounds.max.y;
+        float platformBottom = platformCollider.bounds.min.y;
         
         // 获取玩家的Rigidbody2D来检测移动方向
         Rigidbody2D playerRb = player.GetComponent<Rigidbody2D>();
         bool playerMovingUp = playerRb != null && playerRb.velocity.y > 0.1f;
         bool playerMovingDown = playerRb != null && playerRb.velocity.y < -0.1f;
         
-        // 如果玩家在平台下方且向上移动，则禁用碰撞（允许穿透）
-        if (playerBottom < platformTop && playerMovingUp)
+        // 判断玩家是否在平台的垂直范围内（水平方向也需要检查）
+        bool playerInPlatformVerticalRange = playerBottom < platformTop && playerTop > platformBottom;
+        
+        // 如果玩家在平台下方且向上移动，则禁用碰撞（允许从下往上穿透）
+        if (playerTop < platformTop && playerMovingUp)
         {
             Physics2D.IgnoreCollision(playerCollider, platformCollider, true);
+        }
+        // 如果玩家已经完全穿透到平台上方，重新启用碰撞
+        else if (playerBottom > platformTop)
+        {
+            Physics2D.IgnoreCollision(playerCollider, platformCollider, false);
         }
         // 如果玩家在平台上方且向下移动，确保碰撞启用（防止从上方穿透）
         else if (playerBottom >= platformTop && playerMovingDown)
         {
             Physics2D.IgnoreCollision(playerCollider, platformCollider, false);
         }
-        // 其他情况（玩家在平台上或静止），确保碰撞启用
+        // 如果玩家在平台上或静止，确保碰撞启用
         else
         {
             Physics2D.IgnoreCollision(playerCollider, platformCollider, false);

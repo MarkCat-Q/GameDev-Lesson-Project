@@ -25,6 +25,7 @@ public class PropSticky : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
+            // move.cs会通过检测组件类型来获得能力
             Destroy(gameObject);
         }
     }

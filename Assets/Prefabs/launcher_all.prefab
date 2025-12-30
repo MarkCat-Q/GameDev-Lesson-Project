@@ -145,8 +145,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerTag: Player
   holdTimeThreshold: 0
-  launchForce: 15
+  launchForce: 30
+  launchCooldown: 0.3
+  resetPlayerAbilitiesOnLaunch: 1
+  disableInputDuration: 0
+  launchVelocityMaintainDuration: 0.2
   horizontalAxis: Horizontal
   verticalAxis: Vertical
   useDefaultDirectionWhenNoInput: 1
+  launchSound: {fileID: 0}
+  launchEffectPrefab: {fileID: 0}
+  effectOffset: {x: 0, y: 0}
   debugDrawDefaultDirection: 1
+  debugLog: 0
+  enableDebugManualLaunch: 1

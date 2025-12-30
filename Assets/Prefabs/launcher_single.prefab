@@ -30,7 +30,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -19.5, y: 7.29, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -145,5 +145,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerTag: Player
   holdTimeThreshold: 0
-  launchForce: 100
+  launchForce: 30
+  launchAngleOffset: 0
+  launchCooldown: 0.3
+  resetPlayerAbilitiesOnLaunch: 1
+  disableInputDuration: 0
+  launchVelocityMaintainDuration: 0.2
+  launchSound: {fileID: 0}
+  launchEffectPrefab: {fileID: 7204429219805006232, guid: 1951194dd6c93b7458a4425b33e87084, type: 3}
+  effectOffset: {x: 0, y: 0}
   debugDrawDirection: 1
+  debugLog: 1
