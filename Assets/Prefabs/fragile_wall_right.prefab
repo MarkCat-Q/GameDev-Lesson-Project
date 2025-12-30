@@ -100,9 +100,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   breakFromTop: 0
   breakFromBottom: 0
-  breakFromLeft: 0
   breakFromRight: 1
+  breakFromLeft: 0
   destroyDelay: 0
+  shakeIntensity: 0.1
+  shakeDuration: 0.3
+  shakeFrequency: 20
 --- !u!61 &546389380664822621
 BoxCollider2D:
   m_ObjectHideFlags: 0
